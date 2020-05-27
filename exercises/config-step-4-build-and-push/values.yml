@@ -1,0 +1,7 @@
+#@data/values
+---
+svc_port: 8080
+app_port: 8080
+hello_msg: stranger
+push_images: true
+push_images_repo: "" #! e.g. "quay.io/eduk8s-labs/sample-app-go"

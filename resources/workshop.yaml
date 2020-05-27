@@ -1,21 +1,31 @@
 apiVersion: training.eduk8s.io/v1alpha2
 kind: Workshop
 metadata:
-  name: lab-markdown-sample
+  name: lab-getting-started-k14s
 spec:
-  title: Markdown Sample
-  description: A sample workshop using Markdown
+  title: Getting started with Kubernetes Tools (k14s)
+  description: Introducing k14s (Kubernetes Tools), a simple and Composable Tools for Application Deployment
   vendor: eduk8s.io
   difficulty: beginner
   duration: 15m
-  url: https://github.com/eduk8s/lab-markdown-sample
+  url: https://github.com/eduk8s-tests/lab-getting-started-with-k14s
   content:
-    #image: quay.io/eduk8s/lab-markdown-sample:master
-    files: github.com/eduk8s/lab-markdown-sample
+    #! image: quay.io/eduk8s-tests/lab-getting-started-with-k14s:master
+    files: github.com/eduk8s-tests/lab-getting-started-with-k14s
+#!    image: registry.failk8s.com/eduk8s/k14s:latest
   session:
     budget: small
+    resources:
+      memory: 2Gi
     applications:
+      terminal:
+        enabled: true
+        layout: split
       console:
         enabled: true
       editor:
+        enabled: true
+      registry:
+        enabled: true
+      docker:
         enabled: true

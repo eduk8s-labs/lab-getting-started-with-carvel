@@ -1,0 +1,34 @@
+#@ load("@ytt:data", "data")
+
+#@ def labels():
+simple-app: ""
+#@ end
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: simple-app
+spec:
+  ports:
+  - port: #@ data.values.svc_port
+    targetPort: #@ data.values.app_port
+  selector: #@ labels()
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-app
+spec:
+  selector:
+    matchLabels: #@ labels()
+  template:
+    metadata:
+      labels: #@ labels()
+    spec:
+      containers:
+      - name: simple-app
+        image: quay.io/eduk8s-labs/sample-app-go@sha256:5021a23e0c4a4633bfd6c95b13898cffb88a0e67f109d87ec01b4f896f4b4296
+        env:
+        - name: HELLO_MSG
+          value: #@ data.values.hello_msg

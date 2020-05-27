@@ -1,8 +1,15 @@
-name: Markdown Sample
+name: Getting started with k14s
 
 modules:
     activate:
     - workshop-overview
     - setup-environment
-    - exercises/01-sample-content
+    - exercises/1-deploying-the-application
+    - exercises/2-access-the-application
+    - exercises/3-deploying-config-changes
+    - exercises/4-templating-app-configuration
+    - exercises/5-patching-app-configuration
+    - exercises/6-building-container-images-locally
+    - exercises/7-pushing-images-to-a-registry
+    - exercises/8-clean-up-cluster-resources
     - workshop-summary

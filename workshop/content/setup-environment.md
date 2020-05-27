@@ -1,9 +1,24 @@
-Include in this page any steps which should be run by a user to check that the workshop environment is setup correctly. Exactly what you provide in this step will depend on whether the workshop is designed to be deployed in a specific way.
+Before getting too deep, let's get some basic preparations out of the way:
 
-It is a good idea in this page to provide at least one sample command to run which is marked with the `execute` annotation so anyone doing the workshop understands they can click on marked commands to run them. For example:
+* __Find a Kubernetes cluster__. This workshop is already deployed in a Kubernetes cluster ready for you to use. If you want to replicate this workshop locally you can use Minikube or Docker for Mac/Windows.
+* __Check that the cluster works with kubectl__
 
 ```execute
-date
+kubectl version
 ```
 
-Did you type the command in yourself? If you did, click on the command instead and you will find that it is executed for you. You can click on any command which has the <span class="fas fa-running"></span> icon shown to the right of it, and it will be copied to the interactive terminal and run. If you would rather make a copy of the command so you can paste it to another window, hold down the shift key when you click on the command.
+__NOTE__: Did you type the command in yourself? If you did, click on the command instead and you will find that it is executed for you. You can click on any command which has the <span class="fas fa-running"></span> icon shown to the right of it, and it will be copied to the interactive terminal and run. If you would rather make a copy of the command so you can paste it to another window, hold down the shift key when you click on the command.
+
+* __Install k14s tools by following instructions on [https://k14s.io/](https://k14s.io/)__ In this environment we have already installed the tools and they are available in the PATH.
+
+```execute
+ytt --version
+```
+
+```execute
+kbld --version
+```
+
+```execute
+kapp --version
+```

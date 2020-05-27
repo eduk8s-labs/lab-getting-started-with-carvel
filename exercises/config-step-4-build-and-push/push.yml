@@ -1,0 +1,13 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:assert", "assert")
+
+#@ if/end data.values.push_images:
+---
+apiVersion: kbld.k14s.io/v1alpha1
+kind: ImageDestinations
+destinations:
+- image: quay.io/eduk8s-labs/sample-app-go
+  #@ if not data.values.push_images_repo or len(data.values.push_images_repo) == 0:
+  #@   assert.fail("Expected push_images_repo to be non-empty. Example: quay.io/eduk8s-labs/sample-app-go")
+  #@ end
+  newImage: #@ data.values.push_images_repo

@@ -1,4 +1,4 @@
-LAB - Markdown Sample
+LAB - Getting started with Kubernetes Tools (k14s)
 =====================
 
-Sample workshop content using Markdown formatting for pages.
+TODO: 
