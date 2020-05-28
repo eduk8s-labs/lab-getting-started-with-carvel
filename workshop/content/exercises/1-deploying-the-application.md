@@ -36,40 +36,44 @@ Let us deploy our application with kapp:
 kapp deploy -a simple-app -f config-step-1-minimal/
 ```
 
+__NOTE__: You will be prompted to `Continue` with the changes. Just press `y`.
+
 You should see a similar output to the following:
 ```
 Changes
 
-Namespace  Name        Kind        Conditions  Age  Changed  Ignored Reason
-default    simple-app  Deployment  -           -    add      -
-~          simple-app  Service     -           -    add      -
+Namespace                          Name        Kind        Conds.  Age  Op      Wait to    Rs  Ri
+lab-getting-started-k14s-w01-s001  simple-app  Deployment  -       -    create  reconcile  -   -
+^                                  simple-app  Service     -       -    create  reconcile  -   -
 
-2 add, 0 delete, 0 update, 0 keep
-
-2 changes
+Op:      2 create, 0 delete, 0 update, 0 noop
+Wait to: 2 reconcile, 0 delete, 0 noop
 
 Continue? [yN]: y
 
-6:11:44PM: --- applying changes
-6:11:44PM: add service/simple-app (v1) namespace: default
-6:11:44PM: add deployment/simple-app (apps/v1) namespace: default
-6:11:44PM: waiting on add service/simple-app (v1) namespace: default
-6:11:44PM:  L waiting on endpoints/simple-app (v1) namespace: default ... done
-6:11:44PM: waiting on add deployment/simple-app (apps/v1) namespace: default
-6:11:44PM:  L waiting on replicaset/simple-app-5fb5ff9bdb (extensions/v1beta1) namespace: default ... done
-6:11:44PM:  L waiting on pod/simple-app-5fb5ff9bdb-2clpj (v1) namespace: default ... in progress: Pending
-6:11:45PM:
-6:11:45PM: ---  waiting on 1 changes
-6:11:45PM: waiting on add deployment/simple-app (apps/v1) namespace: default
-6:11:45PM:  L waiting on replicaset/simple-app-5fb5ff9bdb (apps/v1) namespace: default ... done
-6:11:45PM:  L waiting on pod/simple-app-5fb5ff9bdb-2clpj (v1) namespace: default ... done
-6:11:45PM: --- changes applied
+11:17:38AM: ---- applying 2 changes [0/2 done] ----
+11:17:38AM: create service/simple-app (v1) namespace: lab-getting-started-k14s-w01-s001
+11:17:38AM: create deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:17:38AM: ---- waiting on 2 changes [0/2 done] ----
+11:17:38AM: ok: reconcile service/simple-app (v1) namespace: lab-getting-started-k14s-w01-s001
+11:17:39AM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:17:39AM:  ^ Waiting for 1 unavailable replicas
+11:17:39AM:  L ok: waiting on replicaset/simple-app-6b4488bc45 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:17:39AM:  L ongoing: waiting on pod/simple-app-6b4488bc45-5mmfr (v1) namespace: lab-getting-started-k14s-w01-s001
+11:17:39AM:     ^ Pending: ContainerCreating
+11:17:39AM: ---- waiting on 1 changes [1/2 done] ----
+11:17:41AM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:17:41AM:  ^ Waiting for 1 unavailable replicas
+11:17:41AM:  L ok: waiting on replicaset/simple-app-6b4488bc45 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:17:41AM:  L ok: waiting on pod/simple-app-6b4488bc45-5mmfr (v1) namespace: lab-getting-started-k14s-w01-s001
+11:17:43AM: ok: reconcile deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:17:43AM: ---- applying complete [2/2 done] ----
+11:17:43AM: ---- waiting complete [2/2 done] ----
 
 Succeeded
 ```
 
-__TODO__: This label seems not to exist anymore
-Our `simple-app` received a unique label `kapp.k14s.io/app=1557433075084066000` for resource tracking:
+We can now list the applications we have deployed on our namespace:
 
 ```execute-1
 kapp ls
@@ -89,7 +93,7 @@ Lca: Last Change Age
 Succeeded
 ```
 
-Using this label, kapp tracks and allows inspection of all Kubernetes resources created for `sample-app`:
+Also, we can inspect all the Kubernetes resources created for `sample-app`:
 
 ```execute-1
 kapp inspect -a simple-app --tree
@@ -115,6 +119,8 @@ Succeeded
 
 Note that it even knows about resources it did not directly create (such as ReplicaSet and Endpoints).
 
+We can also get the logs for our application:
+
 ```execute-1
 kapp logs -f -a simple-app
 ```
@@ -124,10 +130,4 @@ kapp logs -f -a simple-app
 simple-app-6f884d8d9d-nn5ds > simple-app | 2019/05/09 20:43:36 Server started
 ```
 
-`inspect` and `logs` commands demonstrate why it's convenient to view resources in "bulk" (via a label). For example, `logs` command will tail any existing or new Pod that is part of simple-app application, even after we make changes and redeploy.
-
-Let's stop that log tailing and continue with the workshop.
-
-```execute-1
-<ctrl-c>
-```
+`inspect` and `logs` commands demonstrate why it's convenient to view resources in "bulk". For example, `logs` command will tail any existing or new Pod that is part of simple-app application, even after we make changes and redeploy.

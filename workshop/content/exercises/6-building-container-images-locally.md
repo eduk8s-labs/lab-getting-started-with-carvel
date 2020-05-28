@@ -2,7 +2,7 @@ K8s embraced use of container images to package source code and its dependencies
 
 As we are going to build our image locally, we will pull down the source code locally:
 
-```
+```execute-1
 git clone https://github.com/eduk8s-labs/sample-app-go
 ```
 
@@ -20,62 +20,111 @@ __NOTE__: As we're using a real cluster, just read on but you may have to wait u
 
 Let's insert kbld between ytt and kapp so that images used in our configuration are built before they are deployed by kapp:
 
-```
+```execute-1
 ytt template -f config-step-3-build-local/ -v hello_msg="k14s user" | kbld -f- | kapp deploy -a simple-app -f- --diff-changes --yes
+```
 
-docker.io/dkalinin/k8s-simple-app | starting build (using Docker): . -> kbld:1557534242219453000-quay-io-eduk8s-labs-sample-app-go
-docker.io/dkalinin/k8s-simple-app | Sending build context to Docker daemon  223.7kB
-docker.io/dkalinin/k8s-simple-app | Step 1/8 : FROM golang:1.12 as builder
-docker.io/dkalinin/k8s-simple-app |  ---> 7ced090ee82e
-docker.io/dkalinin/k8s-simple-app | Step 2/8 : WORKDIR /src/
-docker.io/dkalinin/k8s-simple-app |  ---> Using cache
-docker.io/dkalinin/k8s-simple-app |  ---> cfcc02b178b8
-docker.io/dkalinin/k8s-simple-app | Step 3/8 : COPY . .
-docker.io/dkalinin/k8s-simple-app |  ---> 7c5f468a7d66
-docker.io/dkalinin/k8s-simple-app | Step 4/8 : RUN CGO_ENABLED=0 GOOS=linux go build -v -o app
-docker.io/dkalinin/k8s-simple-app |  ---> Running in 5e21b3183646
-docker.io/dkalinin/k8s-simple-app | net
-docker.io/dkalinin/k8s-simple-app | net/textproto
-docker.io/dkalinin/k8s-simple-app | crypto/x509
-docker.io/dkalinin/k8s-simple-app | internal/x/net/http/httpguts
-docker.io/dkalinin/k8s-simple-app | internal/x/net/http/httpproxy
-docker.io/dkalinin/k8s-simple-app | crypto/tls
-docker.io/dkalinin/k8s-simple-app | net/http/httptrace
-docker.io/dkalinin/k8s-simple-app | net/http
-docker.io/dkalinin/k8s-simple-app | _/src
-docker.io/dkalinin/k8s-simple-app | Removing intermediate container 5e21b3183646
-docker.io/dkalinin/k8s-simple-app |  ---> bd702bf4a0c4
-docker.io/dkalinin/k8s-simple-app | Step 5/8 : FROM scratch as runtime
-docker.io/dkalinin/k8s-simple-app |  --->
-docker.io/dkalinin/k8s-simple-app | Step 6/8 : COPY --from=builder /src/app .
-docker.io/dkalinin/k8s-simple-app |  ---> Using cache
-docker.io/dkalinin/k8s-simple-app |  ---> 753b71824c31
-docker.io/dkalinin/k8s-simple-app | Step 7/8 : EXPOSE 8080
-docker.io/dkalinin/k8s-simple-app |  ---> Using cache
-docker.io/dkalinin/k8s-simple-app |  ---> 3c5e4cdbdc38
-docker.io/dkalinin/k8s-simple-app | Step 8/8 : ENTRYPOINT ["/app"]
-docker.io/dkalinin/k8s-simple-app |  ---> Using cache
-docker.io/dkalinin/k8s-simple-app |  ---> f999be3e0d96
-docker.io/dkalinin/k8s-simple-app | Successfully built f999be3e0d96
-docker.io/dkalinin/k8s-simple-app | Successfully tagged kbld:1557534242219453000-quay-io-eduk8s-labs-sample-app-go
-docker.io/dkalinin/k8s-simple-app | Untagged: kbld:1557534242219453000-quay-io-eduk8s-labs-sample-app-go
-docker.io/dkalinin/k8s-simple-app | finished build (using Docker)
-resolve | final: docker.io/dkalinin/k8s-simple-app -> kbld:quay-io-eduk8s-labs-sample-app-go-sha256-f999be3e0d96c78dc4d4c8330c8de8aff3c91f5e152f021d01cb3cd0e92a1797
-@@ update service/simple-app (v1) namespace: lab-getting-started-k14s-w01-s003 @@ 
+```
+quay.io/eduk8s-labs/sample-app-go | starting build (using Docker): sample-app-go -> kbld:rand-1590666070030466586-8975333420-quay-io-eduk8s-labs-sample-app-go
+quay.io/eduk8s-labs/sample-app-go | Sending build context to Docker daemon  81.41kB
+quay.io/eduk8s-labs/sample-app-go | Step 1/9 : FROM golang:1.12 as builder
+quay.io/eduk8s-labs/sample-app-go |  ---> ffcaee6f7d8b
+quay.io/eduk8s-labs/sample-app-go | Step 2/9 : WORKDIR /src
+quay.io/eduk8s-labs/sample-app-go |  ---> Using cache
+quay.io/eduk8s-labs/sample-app-go |  ---> 6347878f73ba
+quay.io/eduk8s-labs/sample-app-go | Step 3/9 : COPY . .
+quay.io/eduk8s-labs/sample-app-go |  ---> 7896a587f75e
+quay.io/eduk8s-labs/sample-app-go | Step 4/9 : RUN CGO_ENABLED=0 GOOS=linux go build -v -o app
+quay.io/eduk8s-labs/sample-app-go |  ---> Running in 94bbefa0a305
+quay.io/eduk8s-labs/sample-app-go | net
+quay.io/eduk8s-labs/sample-app-go | internal/x/net/http/httpproxy
+quay.io/eduk8s-labs/sample-app-go | net/textproto
+quay.io/eduk8s-labs/sample-app-go | crypto/x509
+quay.io/eduk8s-labs/sample-app-go | internal/x/net/http/httpguts
+quay.io/eduk8s-labs/sample-app-go | crypto/tls
+quay.io/eduk8s-labs/sample-app-go | net/http/httptrace
+quay.io/eduk8s-labs/sample-app-go | net/http
+quay.io/eduk8s-labs/sample-app-go | _/src
+quay.io/eduk8s-labs/sample-app-go | Removing intermediate container 94bbefa0a305
+quay.io/eduk8s-labs/sample-app-go |  ---> d46b89a51fab
+quay.io/eduk8s-labs/sample-app-go | Step 5/9 : FROM scratch as runtime
+quay.io/eduk8s-labs/sample-app-go |  --->
+quay.io/eduk8s-labs/sample-app-go | Step 6/9 : COPY --from=builder /src/app .
+quay.io/eduk8s-labs/sample-app-go |  ---> 85316d4960f2
+quay.io/eduk8s-labs/sample-app-go | Step 7/9 : EXPOSE 8080
+quay.io/eduk8s-labs/sample-app-go |  ---> Running in 924d7d31f91d
+quay.io/eduk8s-labs/sample-app-go | Removing intermediate container 924d7d31f91d
+quay.io/eduk8s-labs/sample-app-go |  ---> ed2a9264a4d2
+quay.io/eduk8s-labs/sample-app-go | Step 8/9 : USER 1000
+quay.io/eduk8s-labs/sample-app-go |  ---> Running in e0effc36bc38
+quay.io/eduk8s-labs/sample-app-go | Removing intermediate container e0effc36bc38
+quay.io/eduk8s-labs/sample-app-go |  ---> 361d4bc394a7
+quay.io/eduk8s-labs/sample-app-go | Step 9/9 : ENTRYPOINT ["/app"]
+quay.io/eduk8s-labs/sample-app-go |  ---> Running in faed2f404d15
+quay.io/eduk8s-labs/sample-app-go | Removing intermediate container faed2f404d15
+quay.io/eduk8s-labs/sample-app-go |  ---> 03eb944c407c
+quay.io/eduk8s-labs/sample-app-go | Successfully built 03eb944c407c
+quay.io/eduk8s-labs/sample-app-go | Successfully tagged kbld:rand-1590666070030466586-8975333420-quay-io-eduk8s-labs-sample-app-go
+quay.io/eduk8s-labs/sample-app-go | Untagged: kbld:rand-1590666070030466586-8975333420-quay-io-eduk8s-labs-sample-app-go
+quay.io/eduk8s-labs/sample-app-go | finished build (using Docker)
+resolve | final: quay.io/eduk8s-labs/sample-app-go -> kbld:quay-io-eduk8s-labs-sample-app-go-sha256-03eb944c407c455f8966623ed600f157c23633577d02e51a6763ba1dd546e471
+
+@@ update deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001 @@
+  ...
+  4,  4       deployment.kubernetes.io/revision: "3"
+      5 +     kbld.k14s.io/images: |
+      6 +       - Metas:
+      7 +         - Path: /home/eduk8s/exercises/sample-app-go
+      8 +           Type: local
+      9 +         - Dirty: true
+     10 +           RemoteURL: https://github.com/eduk8s-labs/sample-app-go
+     11 +           SHA: b677913bc9e92c45d6136b776bce011b45666619
+     12 +           Type: git
+     13 +         URL: kbld:quay-io-eduk8s-labs-sample-app-go-sha256-03eb944c407c455f8966623ed600f157c23633577d02e51a6763ba1dd546e471
+  5, 14     creationTimestamp: "2020-05-28T11:34:56Z"
+  6, 15     generation: 8
+  ...
+ 15, 24   spec:
+ 16     -   replicas: 2
+ 17, 25     selector:
+ 18, 26       matchLabels:
   ...
  31, 39             value: k14s user
  32     -         image: quay.io/eduk8s-labs/sample-app-go@sha256:5021a23e0c4a4633bfd6c95b13898cffb88a0e67f109d87ec01b4f896f4b4296
-     40 +         image: kbld:quay-io-eduk8s-labs-sample-app-go-sha256-7aed69a761f772d74416df18f92db11f547f70a54c9ab02592dc339d1d6bede2
+     40 +         image: kbld:quay-io-eduk8s-labs-sample-app-go-sha256-03eb944c407c455f8966623ed600f157c23633577d02e51a6763ba1dd546e471
  33, 41           name: simple-app
- 33, 33   status:
+ 34, 42   status:
 
 Changes
 
 Namespace                          Name        Kind        Conds.  Age  Op      Wait to    Rs  Ri
-lab-getting-started-k14s-w01-s003  simple-app  Deployment  2/2 t   22m  update  reconcile  ok  -
+lab-getting-started-k14s-w01-s001  simple-app  Deployment  2/2 t   6m   update  reconcile  ok  -
 
-Op:      0 create, 0 delete, 2 update, 0 noop
-Wait to: 2 reconcile, 0 delete, 0 noop
+Op:      0 create, 0 delete, 1 update, 0 noop
+Wait to: 1 reconcile, 0 delete, 0 noop
+
+11:41:16AM: ---- applying 1 changes [0/1 done] ----
+11:41:16AM: update deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:16AM: ---- waiting on 1 changes [0/1 done] ----
+11:41:18AM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:18AM:  ^ Waiting for generation 10 to be observed
+11:41:18AM:  L ok: waiting on replicaset/simple-app-8d7df8bb8 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:18AM:  L ok: waiting on replicaset/simple-app-7b95fdff84 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:18AM:  L ok: waiting on replicaset/simple-app-6cbfc8b6d6 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:18AM:  L ok: waiting on replicaset/simple-app-5bf54866b6 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:18AM:  L ok: waiting on pod/simple-app-7b95fdff84-4v952 (v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:18AM:  L ongoing: waiting on pod/simple-app-6cbfc8b6d6-q4d7w (v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:18AM:     ^ Pending: ContainerCreating
+11:41:20AM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:20AM:  ^ Waiting for 1 unavailable replicas
+11:41:20AM:  L ok: waiting on replicaset/simple-app-8d7df8bb8 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:20AM:  L ok: waiting on replicaset/simple-app-7b95fdff84 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:20AM:  L ok: waiting on replicaset/simple-app-6cbfc8b6d6 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:20AM:  L ok: waiting on replicaset/simple-app-5bf54866b6 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:20AM:  L ok: waiting on pod/simple-app-7b95fdff84-4v952 (v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:20AM:  L ongoing: waiting on pod/simple-app-6cbfc8b6d6-q4d7w (v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:20AM:     ^ Pending: ImagePullBackOff (message: Back-off pulling image "kbld:quay-io-eduk8s-labs-sample-app-go-sha256-03eb944c407c455f8966623ed600f157c23633577d02e51
+a6763ba1dd546e471")
 ...
 ```
 
@@ -91,7 +140,7 @@ If the deploy was successful you could check out application in your browser or 
 
 It's also worth showing that kbld not only builds images and updates references but also annotates Kubernetes resources with image metadata it collects and makes it quickly accessible for debugging. This may not be that useful during development but comes handy when investigating environment (staging, production, etc.) state.
 
-```
+```execute-1
 kapp inspect -a simple-app --raw --filter-kind Deployment --tty=false | kbld inspect -f-
 ```
 

@@ -8,9 +8,11 @@ Let's make a change to the application configuration to simulate a common occurr
 
 Go ahead and make this change in the embedded editor or using `vi` as you prefer. Once you've changed this file re-run kapp deploy:
 
-```
+```execute-1
 kapp deploy -a simple-app -f config-step-1-minimal/ --diff-changes
 ```
+
+__NOTE__: Remember again to Continue with the changes. In the future, we will provide a `-y` or `--yes` flag to go ahead with the changes without prompting us.
 
 You should see a similar output to these:
 

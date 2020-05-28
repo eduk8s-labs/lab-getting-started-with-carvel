@@ -44,4 +44,29 @@ default    simple-app  Deployment  2 OK / 2    1d   mod      -
 ...
 ```
 
-As a benefit of using kbld, you will see that image digest reference (e.g. index.docker.io/your-username/your-repo@sha256:4c8b96...) was used instead of a tagged reference (e.g. kbld:docker-io...). Digest references are preferred to other image reference forms as they are immutable, hence provide a gurantee that exact version of built software will be deployed.
+If we inspect again the application we see the new referenced image:
+
+```execute-1
+kapp inspect -a simple-app --raw --filter-kind Deployment --tty=false | kbld inspect -f-
+```
+
+```
+Images
+
+Image     {{ REGISTRY_HOST }}/k14s/sample-app-go@sha256:c293f506529ee65e1f6c3600398d29b7677c5fa80c065f60354486dee28cb51a
+Metadata  - Path: /home/eduk8s/exercises/sample-app-go
+            Type: local
+          - Dirty: true
+            RemoteURL: https://github.com/eduk8s-labs/sample-app-go
+            SHA: b677913bc9e92c45d6136b776bce011b45666619
+            Type: git
+Resource  deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s005
+
+1 images
+
+Succeeded
+```
+
+As a benefit of using __kbld__, you will see that image digest reference (e.g. {{ REGISTRY_HOST }}/k14s/sample-app-go@sha256:4c8b96...) was used instead of a tagged reference (e.g. kbld:docker-io...). 
+
+Digest references are preferred to other image reference forms as they are `immutable`, hence provide a gurantee that exact version of built software will be deployed.

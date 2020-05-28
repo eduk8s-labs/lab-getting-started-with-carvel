@@ -20,3 +20,9 @@ But as this workshop environment is already running inside the Kubernetes cluste
 ```execute-2
 curl http://simple-app.{{ session_namespace }}.svc.cluster.local:8080
 ```
+
+Let's now stop that log tailing for our application and continue with the workshop.
+
+```execute-1
+<ctrl-c>
+```

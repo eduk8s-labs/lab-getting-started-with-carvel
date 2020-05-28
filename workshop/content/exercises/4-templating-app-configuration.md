@@ -14,7 +14,7 @@ To tie it all together, let's take a look at `config-step-2-template/config.yml`
 
 Above snippet tells ytt that `HELLO_MSG` environment variable value should be set to the value of `data.values.hello_msg`. __data.values__ structure comes from the builtin ytt `data` library that allows us to expose configuration knobs through a separate file, namely `config-step-2-template/values.yml`. Deployers of `simple-app` can now decide, for example, what hello message to set without making application code or configuration changes.
 
-Let's chain ytt and kapp to deploy an update, and note -v flag which sets hello_msg value:
+Let's chain ytt and kapp to deploy an update, and note `-v` flag which sets hello_msg value:
 
 ```execute-1
 ytt template -f config-step-2-template/ -v hello_msg="k14s user" | kapp deploy -a simple-app -f- --diff-changes --yes

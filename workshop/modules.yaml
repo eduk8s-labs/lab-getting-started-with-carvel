@@ -24,3 +24,6 @@ modules:
     workshop-summary:
         name: Workshop Summary
         exit_sign: Finish Workshop
+config:
+  vars:
+  - name: REGISTRY_HOST

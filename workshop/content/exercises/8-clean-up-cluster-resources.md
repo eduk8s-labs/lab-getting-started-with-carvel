@@ -4,6 +4,8 @@ Given that kapp tracks all resources that were deployed to k8s cluster, deleting
 kapp delete -a simple-app
 ```
 
+Provide confirmation to delete all the resources:
+
 ```
 Changes
 
