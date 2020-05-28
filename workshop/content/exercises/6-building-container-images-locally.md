@@ -11,7 +11,7 @@ This has created a new folder called `sample-app-go` where we can find the sourc
 Before running kbld, let's change `app.go` by adding a line to make a small change in our application. Add the following snippet after `line 14` in that file.
 
 ```
-fmt.Fprintf(w, "<p>local change</p>"
+fmt.Fprintf(w, "<p>local change</p>")
 ```
 
 `config-step-3-build-local/build.yml` is a new file in this config directory, which specifies that `quay.io/eduk8s-labs/sample-app-go` should be built from the current working directory where kbld runs (root of the repo).
