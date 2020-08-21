@@ -1,6 +1,6 @@
 The [k14s](https://k14s.io/) (stands for "Kubernetes Tools") Github organization ([https://github.com/k14s](https://github.com/k14s)) contains several tools we created as a result of working with complex, multi-purpose tools like [Helm](https://helm.sh/). We believe that working with simple, single-purpose tools that easily interoperate with one another results in a better, workflow compared to the all-in-one approach chosen by Helm. We have found this approach to be easier to understand and debug.
 
-In this blog post we will focus on local application development workflow; however, tools introduced here work also well for other workflows, for example, for production GitOps deployments or manual application deploys. We plan to publish additional blog posts for other workflows. Let us know what you are most interested in!
+In this workshop we will focus on local application development workflow; however, tools introduced here work also well for other workflows, for example, for production GitOps deployments or manual application deploys. We plan to publish additional blog posts for other workflows. Let us know what you are most interested in!
 
 We break down local application development workflow into the following stages:
 
