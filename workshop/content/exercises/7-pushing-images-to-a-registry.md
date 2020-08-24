@@ -1,6 +1,6 @@
 The previous section showed how to use kbld with local cluster that's backed by local Docker daemon. No remote registry was involved; however, for a production environment or in absence of a local environment, you will need to instruct kbld to push out built images to a registry accessible to your cluster. This is our case and we will finally see our application change.
 
-`config-step-4-build-local/build.yml` specifies that `quay.io/eduk8s-labs/sample-app-go` should be pushed to a repository as specified by `push_images_repo` data value.
+`config-step-4-build-local/push.yml` specifies that `quay.io/eduk8s-labs/sample-app-go` should be pushed to a repository as specified by `push_images_repo` data value.
 
 Our local docker client is already authenticated to the registry we will be pushing to, but otherwise you would need to make sure that it can push to it.
 
