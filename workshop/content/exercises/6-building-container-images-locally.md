@@ -21,7 +21,7 @@ __NOTE__: As we're using a real cluster, just read on but you may have to wait u
 Let's insert kbld between ytt and kapp so that images used in our configuration are built before they are deployed by kapp:
 
 ```execute-1
-ytt template -f config-step-3-build-local/ -v hello_msg="k14s user" | kbld -f- | kapp deploy -a simple-app -f- --diff-changes --yes
+ytt template -f config-step-3-build-local/ -v hello_msg="carvel user" | kbld -f- | kapp deploy -a simple-app -f- --diff-changes --yes
 ```
 
 ```
@@ -89,7 +89,7 @@ resolve | final: quay.io/eduk8s-labs/sample-app-go -> kbld:quay-io-eduk8s-labs-s
  17, 25     selector:
  18, 26       matchLabels:
   ...
- 31, 39             value: k14s user
+ 31, 39             value: carvel user
  32     -         image: quay.io/eduk8s-labs/sample-app-go@sha256:5021a23e0c4a4633bfd6c95b13898cffb88a0e67f109d87ec01b4f896f4b4296
      40 +         image: kbld:quay-io-eduk8s-labs-sample-app-go-sha256-03eb944c407c455f8966623ed600f157c23633577d02e51a6763ba1dd546e471
  33, 41           name: simple-app

@@ -1,4 +1,4 @@
-LAB - Getting started with Kubernetes Tools (k14s)
+LAB - Getting started with Carvel
 =====================
 
 TODO: 
