@@ -3,8 +3,8 @@ kind: Workshop
 metadata:
   name: lab-getting-started-k14s
 spec:
-  title: Getting started with Kubernetes Tools (k14s)
-  description: Introducing k14s (Kubernetes Tools), a simple and Composable Tools for Application Deployment
+  title: Getting started with Carvel
+  description: Introducing Carvel, Simple and Composable Tools for Application Deployment
   vendor: eduk8s.io
   authors:
   - eduk8s team

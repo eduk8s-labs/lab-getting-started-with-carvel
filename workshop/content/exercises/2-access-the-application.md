@@ -6,7 +6,7 @@ kubectl port-forward svc/simple-app 8080:8080
 
 One downside to the kubectl command above: it has to be restarted if the application pod is recreated.
 
-Alternatively, you could use [k14s' kwt tool](https://github.com/k14s/kwt) which exposes cluster IP subnets and cluster DNS to your machine. This way, you can access the application without requiring any restarts.
+Alternatively, you could use [Carvel's kwt tool](https://github.com/k14s/kwt) which exposes cluster IP subnets and cluster DNS to your machine. This way, you can access the application without requiring any restarts.
 
 With kwt installed, run the following command
 

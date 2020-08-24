@@ -17,7 +17,7 @@ Above snippet tells ytt that `HELLO_MSG` environment variable value should be se
 Let's chain ytt and kapp to deploy an update, and note `-v` flag which sets hello_msg value:
 
 ```execute-1
-ytt template -f config-step-2-template/ -v hello_msg="k14s user" | kapp deploy -a simple-app -f- --diff-changes --yes
+ytt template -f config-step-2-template/ -v hello_msg="carvel user" | kapp deploy -a simple-app -f- --diff-changes --yes
 ```
 
 ```
@@ -25,7 +25,7 @@ ytt template -f config-step-2-template/ -v hello_msg="k14s user" | kapp deploy -
   ...
  29, 29           - name: HELLO_MSG
  30     -           value: somebody
-     30 +           value: k14s user
+     30 +           value: carvel user
  31, 31           image: quay.io/eduk8s-labs/sample-app-go@sha256:5021a23e0c4a4633bfd6c95b13898cffb88a0e67f109d87ec01b4f896f4b4296
  32, 32           name: simple-app
 

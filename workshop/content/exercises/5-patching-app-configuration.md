@@ -3,7 +3,7 @@ ytt also offers another way to customize application configuration. Instead of r
 For example, our simple app configuration templates do not make Deployment's `spec.replicas` configurable as a data value to control how may Pods are running. Instead of asking authors of simple app to expose a new data value, we can create an overlay file `config-step-2a-overlays/custom-scale.yml` that changes `spec.replicas` to a new value.
 
 ```execute-1
-ytt template -f config-step-2-template/ -f config-step-2a-overlays/custom-scale.yml -v hello_msg="k14s user" | kapp deploy -a simple-app -f- --diff-changes --yes
+ytt template -f config-step-2-template/ -f config-step-2a-overlays/custom-scale.yml -v hello_msg="carvel user" | kapp deploy -a simple-app -f- --diff-changes --yes
 ```
 
 ```
