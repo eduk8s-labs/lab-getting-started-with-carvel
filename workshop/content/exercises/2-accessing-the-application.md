@@ -18,7 +18,7 @@ Kill the pod by running:
 kubectl delete pods -l simple-app
 ```
 
-and try using `curl` again, it will not work.
+and once it has stopped, try using `curl` again, it will not work.
 
 ```execute-2
 curl http://localhost:8080
