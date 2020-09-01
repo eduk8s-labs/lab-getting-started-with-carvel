@@ -18,8 +18,8 @@ modules:
     exercises/6-building-container-images-locally:
         name: Building container images locally
     exercises/7-pushing-images-to-a-registry:
-        name: Building and pushing container images to a registry
-    exercises/8-clean-up-cluster-resources:
+        name: Pushing images to a registry
+    exercises/8-cleaning-up-cluster-resources:
         name: Clean up cluster resources
     workshop-summary:
         name: Workshop Summary

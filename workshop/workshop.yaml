@@ -11,5 +11,5 @@ modules:
     - exercises/5-patching-app-configuration
     - exercises/6-building-container-images-locally
     - exercises/7-pushing-images-to-a-registry
-    - exercises/8-clean-up-cluster-resources
+    - exercises/8-cleaning-up-cluster-resources
     - workshop-summary

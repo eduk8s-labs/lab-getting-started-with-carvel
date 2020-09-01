@@ -1,20 +1,30 @@
-The previous section showed how to use kbld with local cluster that's backed by local Docker daemon. No remote registry was involved; however, for a production environment or in absence of a local environment, you will need to instruct kbld to push out built images to a registry accessible to your cluster. This is our case and we will finally see our application change.
+The previous section showed how to use `kbld` to build the container image. It failed to deploy in the end as the Kubernetes cluster being used didn't have access to images held by docker daemon where the build was being run.
 
-`config-step-4-build-local/push.yml` specifies that `quay.io/eduk8s-labs/sample-app-go` should be pushed to a repository as specified by `push_images_repo` data value.
+In order to have it work for the Kubernetes cluster used by this workshop environment, we will need to push the image to an image registry the cluster can access.
+
+The configuration we will use this time is `config-step-4-build-and-push/push.yml`. To view the file run:
+
+```execute
+cat config-step-4-build-and-push/push.yml
+```
+
+The configuration specifies that `quay.io/eduk8s-labs/sample-app-go` should be pushed to an image repository with name as specified by `push_images_repo` data value.
 
 Our local docker client is already authenticated to the registry we will be pushing to, but otherwise you would need to make sure that it can push to it.
 
-Also, to prepare for the deployment there is a secret that we need to apply once, so that Kubernetes can pull images from the private repo we have been using:
+Also, to prepare for the deployment, we need to create an image pull secret to use with the deployment, so that Kubernetes can pull images from the private repo we are using:
 
-```execute-1
+```execute
 kubectl create secret generic registry-credentials --from-file=.dockerconfigjson=$HOME/.docker/config.json --type=kubernetes.io/dockerconfigjson
 ```
 
-Now 
+Run the combined command to process the template, build the image and deploy it, setting the value for `push_images_repo` in the process.
 
 ```execute-1
 ytt template -f config-step-4-build-and-push/ -v hello_msg="carvel user" -v push_images=true -v push_images_repo={{ registry_host }}/carvel/sample-app-go | kbld -f- | kapp deploy -a simple-app -f- --diff-changes --yes
 ```
+
+The key parts of the output which of interest are:
 
 ```
 ...
@@ -44,11 +54,15 @@ default    simple-app  Deployment  2 OK / 2    1d   mod      -
 ...
 ```
 
+This time the build should be successful.
+
 If we inspect again the application we see the new referenced image:
 
 ```execute-1
 kapp inspect -a simple-app --raw --filter-kind Deployment --tty=false | kbld inspect -f-
 ```
+
+For example:
 
 ```
 Images
@@ -60,13 +74,13 @@ Metadata  - Path: /home/eduk8s/exercises/sample-app-go
             RemoteURL: https://github.com/eduk8s-labs/sample-app-go
             SHA: b677913bc9e92c45d6136b776bce011b45666619
             Type: git
-Resource  deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s005
+Resource  deployment/simple-app (apps/v1) namespace: {{session_namespace}}
 
 1 images
 
 Succeeded
 ```
 
-As a benefit of using __kbld__, you will see that image digest reference (e.g. {{ registry_host }}/carvel/sample-app-go@sha256:4c8b96...) was used instead of a tagged reference (e.g. kbld:docker-io...).
+A benefit of using `kbld` you will see is that the image digest reference (e.g. {{ registry_host }}/carvel/sample-app-go@sha256:4c8b96...) was used instead of a tagged reference (e.g. kbld:docker-io...).
 
-Digest references are preferred to other image reference forms as they are `immutable`, hence provide a gurantee that exact version of built software will be deployed.
+Digest references are preferred to other image reference forms as they are `immutable`, hence provide a guarantee that the exact version of built software will be deployed.
