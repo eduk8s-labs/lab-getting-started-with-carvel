@@ -5,7 +5,7 @@ modules:
     - workshop-overview
     - setup-environment
     - exercises/1-deploying-the-application
-    - exercises/2-access-the-application
+    - exercises/2-accessing-the-application
     - exercises/3-deploying-config-changes
     - exercises/4-templating-app-configuration
     - exercises/5-patching-app-configuration

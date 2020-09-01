@@ -7,7 +7,7 @@ modules:
         exit_sign: Start Workshop
     exercises/1-deploying-the-application:
         name: Deploying the sample application
-    exercises/2-access-the-application:
+    exercises/2-accessing-the-application:
         name: Accessing the deployed application
     exercises/3-deploying-config-changes:
         name: Deploying configuration changes
@@ -24,6 +24,3 @@ modules:
     workshop-summary:
         name: Workshop Summary
         exit_sign: Finish Workshop
-config:
-  vars:
-  - name: REGISTRY_HOST

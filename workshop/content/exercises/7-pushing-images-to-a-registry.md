@@ -13,7 +13,7 @@ kubectl create secret generic registry-credentials --from-file=.dockerconfigjson
 Now 
 
 ```execute-1
-ytt template -f config-step-4-build-and-push/ -v hello_msg="carvel user" -v push_images=true -v push_images_repo={{ REGISTRY_HOST }}/carvel/sample-app-go | kbld -f- | kapp deploy -a simple-app -f- --diff-changes --yes
+ytt template -f config-step-4-build-and-push/ -v hello_msg="carvel user" -v push_images=true -v push_images_repo={{ registry_host }}/carvel/sample-app-go | kbld -f- | kapp deploy -a simple-app -f- --diff-changes --yes
 ```
 
 ```
@@ -53,7 +53,7 @@ kapp inspect -a simple-app --raw --filter-kind Deployment --tty=false | kbld ins
 ```
 Images
 
-Image     {{ REGISTRY_HOST }}/carvel/sample-app-go@sha256:c293f506529ee65e1f6c3600398d29b7677c5fa80c065f60354486dee28cb51a
+Image     {{ registry_host }}/carvel/sample-app-go@sha256:c293f506529ee65e1f6c3600398d29b7677c5fa80c065f60354486dee28cb51a
 Metadata  - Path: /home/eduk8s/exercises/sample-app-go
             Type: local
           - Dirty: true
@@ -67,6 +67,6 @@ Resource  deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w0
 Succeeded
 ```
 
-As a benefit of using __kbld__, you will see that image digest reference (e.g. {{ REGISTRY_HOST }}/carvel/sample-app-go@sha256:4c8b96...) was used instead of a tagged reference (e.g. kbld:docker-io...).
+As a benefit of using __kbld__, you will see that image digest reference (e.g. {{ registry_host }}/carvel/sample-app-go@sha256:4c8b96...) was used instead of a tagged reference (e.g. kbld:docker-io...).
 
 Digest references are preferred to other image reference forms as they are `immutable`, hence provide a gurantee that exact version of built software will be deployed.
