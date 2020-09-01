@@ -2,7 +2,7 @@ We will use a small [Go application](https://github.com/eduk8s-labs/sample-app-g
 
 A pre-built container image for the application is published at `quay.io/eduk8s-labs/sample-app-go:latest`. We will use this initially, but in later steps we will use one of the Carvel tools to coordinate the building of the container image from source code.
 
-The current directory contains multiple sub directories, with variations of our application configuration, that we will use during the workshop. To view the files run:
+The current directory contains multiple sub directories with variations of our application configuration that we will use during the workshop. To view the files run:
 
 ```execute
 tree .
