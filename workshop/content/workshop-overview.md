@@ -15,5 +15,5 @@ Helm arguably tries to address stages 2, 3, and 4, with configuration, packaging
 For each stage, Carvel provides a tool that aims to address that stage's challenges:
 
 * __configuration__ -> [ytt](https://get-ytt.io/) for YAML configuration and templating
-* __packaging__ -> [kbld](https://get-kbld.io/) for building Docker images and record image references
+* __packaging__ -> [kbld](https://get-kbld.io/) for building container images and recording image references
 * __deployment__ -> [kapp](https://get-kapp.io/) for deploying a set of Kubernetes resources
