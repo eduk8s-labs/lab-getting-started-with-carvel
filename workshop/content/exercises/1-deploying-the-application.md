@@ -35,7 +35,7 @@ The output should be:
 6 directories, 13 files
 ```
 
-When deploying the container image for an application to Kubernetes, you will typical use a Kubernetes deployment resource. In order to expose the application under a single IP address within the Kubernetes cluster, you will also use a service resource.
+When deploying the container image for an application to Kubernetes, you will typical use a Kubernetes deployment resource. In order to expose the application under a single IP address within the Kubernetes cluster, or via an external load balancer or ingress, you will also use a service resource.
 
 In our first example, this is what the `config-step-1-minimal/config.yml` file contains.
 
@@ -45,7 +45,7 @@ To view the contents of the file run:
 cat config-step-1-minimal/config.yml
 ```
 
-As is the case with self contained resource configurations for Kubernetes, the name of container image and environment variables `HELLO_MSG` are hard coded into the deployment resource.
+As is the case with self contained resource configurations for Kubernetes, the name of the container image and the environment variable `HELLO_MSG` are hard coded into the deployment resource.
 
 If using `kubectl` to deploy the application to Kubernetes, you would use the command:
 
@@ -66,7 +66,7 @@ deployment.apps/simple-app created
 service/simple-app created
 ```
 
-What `kubectl` does not do is tell you the specifics of the changes that are being made so you can confirm that is what is what you expected.
+What `kubectl` does not do is tell you the specifics of the changes that are being made so you can confirm that is what you expected.
 
 Further, `kubectl` does not yet have a robust pruning capability to converge a set of resources ([GitHub issue](https://github.com/kubernetes/kubectl/issues/572)) when configuration is re-applied to an existing set of deployment resources.
 
@@ -139,7 +139,7 @@ This will list a single application called `simple-app`, corresponding to the na
 Apps in namespace '{{session_namespace}}'
 
 Name        Namespaces                         Lcs   Lca
-simple-app  {{session_namespace}}  true  21s
+simple-app  {{session_namespace}}  true  30s
 
 Lcs: Last Change Successful
 Lca: Last Change Age
@@ -161,11 +161,11 @@ The output should be similar to:
 Resources in app 'simple-app'
 
 Namespace                          Name                             Kind        Owner    Conds.  Rs  Ri  Age
-{{session_namespace}}  simple-app                       Service     kapp     -       ok  -   7m
-{{session_namespace}}   L simple-app                    Endpoints   cluster  -       ok  -   7m
-{{session_namespace}}  simple-app                       Deployment  kapp     2/2 t   ok  -   7m
-{{session_namespace}}   L simple-app-9b466965b          ReplicaSet  cluster  -       ok  -   7m
-{{session_namespace}}   L.. simple-app-9b466965b-jzpzs  Pod         cluster  4/4 t   ok  -   7m
+{{session_namespace}}  simple-app                       Service     kapp     -       ok  -   1m
+{{session_namespace}}   L simple-app                    Endpoints   cluster  -       ok  -   1m
+{{session_namespace}}  simple-app                       Deployment  kapp     2/2 t   ok  -   1m
+{{session_namespace}}   L simple-app-9b466965b          ReplicaSet  cluster  -       ok  -   1m
+{{session_namespace}}   L.. simple-app-9b466965b-jzpzs  Pod         cluster  4/4 t   ok  -   1m
 
 Rs: Reconcile state
 Ri: Reconcile information
@@ -192,4 +192,4 @@ simple-app-6f884d8d9d-nn5ds > simple-app | 2019/05/09 20:43:36 Server started
 
 The `inspect` and `logs` commands make it convenient to view resources related to an application by using only the name of the application.
 
-For example, the `logs` command will tail any existing or new pod that is part of `simple-app` application, even after we make changes and redeploy, without needing to identify the names of the individual pods.
+For example, the `logs` command in this case (since we use `-f`) will tail any existing or new pod that is part of `simple-app` application, even after we make changes and redeploy, without needing to identify the names of the individual pods.
