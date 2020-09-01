@@ -1,6 +1,4 @@
-This workshop environment provides you with access to a Kubernetes cluster for running the exercises we will be covering which use the tools from Carvel.
-
-To verify you can access the Kubernetes cluster, run `kubectl version` in the terminal by clicking on the action block below.
+This workshop environment provides you with a Kubernetes cluster to use when running the exercises covered by this workshop. To verify you can access the Kubernetes cluster, run `kubectl version` in the terminal by clicking on the action block below.
 
 ```execute
 kubectl version
