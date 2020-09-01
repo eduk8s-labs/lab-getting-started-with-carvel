@@ -42,7 +42,7 @@ Let's chain `ytt` and `kapp` to deploy an update to our application. Note how we
 ytt template -f config-step-2-template/ -v hello_msg="carvel user" | kapp deploy -a simple-app -f- --diff-changes --yes
 ```
 
-The output should be as follows. Because we use `--yes` to `kapp`, the changes were immediately accepted and applied.
+The output should be as follows. Because we supplied `--yes` to `kapp`, the changes were immediately accepted and applied.
 
 ```
 @@ update deployment/simple-app (apps/v1) namespace: {{session_namespace}} @@
