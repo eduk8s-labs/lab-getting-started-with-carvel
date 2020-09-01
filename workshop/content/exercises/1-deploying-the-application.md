@@ -1,49 +1,103 @@
-We'll use [sample-app-go](https://github.com/eduk8s-labs/sample-app-go) application as our example to showcase how these tools can work together to develop and deploy an application. 
+We will use a small [Go application](https://github.com/eduk8s-labs/sample-app-go) as our example to showcase how tools from Carvel can work together to aid in the process of developing and deploying an application.
 
-A working image for the application is published at `quay.io/eduk8s-labs/sample-app-go:latest`
+A pre-built container image for the application is published at `quay.io/eduk8s-labs/sample-app-go:latest`.
 
-Our current directory (`exercises`) contains multiple `config-step-*` directories with variations of application configuration that we will use during the workshop.
+The current directory contains multiple sub directories, with variations of our application configuration, that we will use during the workshop. To view the files run:
 
-```execute-1
-ls -la
+```execute
+tree .
 ```
 
+The output should be:
+
 ```
-[~/exercises] $ ls -la
-total 0
-drwxrwxr-x 1 eduk8s root 208 May 27 15:17 .
-drwxrwxr-x 1 eduk8s root  90 May 27 17:24 ..
-drwxrwxr-x 1 eduk8s root  24 May 27 12:25 config-step-1-minimal
-drwxrwxr-x 1 eduk8s root  30 May 27 12:25 config-step-2a-overlays
-drwxrwxr-x 1 eduk8s root  24 May 27 12:25 config-step-2b-multiple-data-values
-drwxrwxr-x 1 eduk8s root  42 May 27 12:25 config-step-2-template
-drwxrwxr-x 1 eduk8s root  59 May 27 12:25 config-step-3-build-local
-drwxrwxr-x 1 eduk8s root  75 May 27 12:25 config-step-4-build-and-push
+.
+├── config-step-1-minimal
+│   └── config.yml
+├── config-step-2a-overlays
+│   └── custom-scale.yml
+├── config-step-2b-multiple-data-values
+│   └── values.yml
+├── config-step-2-template
+│   ├── config.yml
+│   └── values.yml
+├── config-step-3-build-local
+│   ├── build.yml
+│   ├── config.yml
+│   └── values.yml
+└── config-step-4-build-and-push
+    ├── build.yml
+    ├── config.yml
+    ├── push-secret.yml
+    ├── push.yml
+    └── values.yml
+
+6 directories, 13 files
 ```
 
-Typically, an application deployed to Kubernetes will include Deployment and Service resources in its configuration. In our example, `config-step-1-minimal/` directory contains `config.yml` which contains exactly that. (Note that the Docker image is already preset and environment variable `HELLO_MSG` is hard coded. We'll get to those shortly.)
+When deploying the container image for an application to Kubernetes, you will typical use a Kubernetes deployment resource. In order to expose the application under a single IP address within the Kubernetes cluster, you will also use a service resource.
 
-Traditionally, you can use `kubectl apply -f config-step-1-minimal/config.yml` to deploy this application. However, kubectl (1) does not indicate which resources are affected and how they are affected before applying changes, and (2) does not yet have a robust prune functionality to converge a set of resources ([GH issue](https://github.com/kubernetes/kubectl/issues/572)). __[kapp](https://get-kapp.io/)__ addresses and improves on several kubectl's limitations as it was designed from the start around the notion of a "__Kubernetes Application__" - `a set of resources with the same label`:
+In our first example, this is what the `config-step-1-minimal/config.yml` file contains.
 
-* kapp separates change calculation phase (diff), from change apply phase (apply) to give users visibility and confidence regarding what's about to change in the cluster
-* kapp tracks and converges resources based on a unique generated label, freeing its users from worrying about cleaning up old deleted resources as the application is updated
-* kapp orders certain resources so that the Kubernetes API server can successfully process them (e.g., CRDs and namespaces before other resources)
-* kapp tries to wait for resources to become ready before considering the deploy a success
+To view the contents of the file run:
 
-Let us deploy our application with kapp:
+```execute
+cat config-step-1-minimal/config.yml
+```
 
-```execute-1
+As is the case with self contained resource configurations for Kubernetes, the name of container image and environment variables `HELLO_MSG` are hard coded into the deployment resource.
+
+If using `kubectl` to deploy the application to Kubernetes, you would use the command:
+
+```
+kubectl apply -f config-step-1-minimal/config.yml
+```
+
+We will not be using `kubectl`, but to see what it would output if run, you can run it with the `--dry-run=client` option.
+
+```execute
+kubectl apply -f config-step-1-minimal/config.yml --dry-run=client
+```
+
+All that `kubectl` would output is the list of affected resources.
+
+```
+deployment.apps/simple-app created
+service/simple-app created
+```
+
+What `kubectl` does not do is tell you the specifics of the changes that are being made so you can confirm that is what is what you expected.
+
+Further, `kubectl` does not yet have a robust pruning capability to converge a set of resources ([GitHub issue](https://github.com/kubernetes/kubectl/issues/572)) when configuration is re-applied to an existing set of deployment resources.
+
+The [kapp](https://get-kapp.io/) tool from Carvel addresses and improves on these and other limitations of `kubectl`, as it is designed around the concept of a Kubernetes application, that being, a set of related resources pertaining to an application, which share a common label.
+
+Key principles around which `kapp` is designed are:
+
+* `kapp` separates change calculation phase (diff), from change apply phase (apply) to give users visibility and confidence regarding what's about to change in the cluster.
+* `kapp` tracks and converges resources based on a unique generated label, freeing its users from worrying about cleaning up old deleted resources as the application is updated.
+* `kapp` orders resources when being applied so that the Kubernetes API server can successfully process them when dependencies exist (e.g., CRDs and namespaces are created before other resources).
+* `kapp` tries to wait for resources to become ready before considering the deployment a success.
+
+To deploy our application with `kapp`, run:
+
+```execute
 kapp deploy -a simple-app -f config-step-1-minimal/
 ```
 
-__NOTE__: You will be prompted to `Continue` with the changes. Just press `y`.
+You will be prompted to accept the changes before they are applied. Enter `y` when asked to continue.
 
-You should see a similar output to the following:
+```terminal:input
+text: y
+```
+
+The output from `kapp` should be similar to the following:
+
 ```
 Changes
 
 Namespace                          Name        Kind        Conds.  Age  Op      Wait to    Rs  Ri
-lab-getting-started-k14s-w01-s001  simple-app  Deployment  -       -    create  reconcile  -   -
+{{session_namespace}}  simple-app  Deployment  -       -    create  reconcile  -   -
 ^                                  simple-app  Service     -       -    create  reconcile  -   -
 
 Op:      2 create, 0 delete, 0 update, 0 noop
@@ -52,38 +106,40 @@ Wait to: 2 reconcile, 0 delete, 0 noop
 Continue? [yN]: y
 
 11:17:38AM: ---- applying 2 changes [0/2 done] ----
-11:17:38AM: create service/simple-app (v1) namespace: lab-getting-started-k14s-w01-s001
-11:17:38AM: create deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:17:38AM: create service/simple-app (v1) namespace: {{session_namespace}}
+11:17:38AM: create deployment/simple-app (apps/v1) namespace: {{session_namespace}}
 11:17:38AM: ---- waiting on 2 changes [0/2 done] ----
-11:17:38AM: ok: reconcile service/simple-app (v1) namespace: lab-getting-started-k14s-w01-s001
-11:17:39AM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:17:38AM: ok: reconcile service/simple-app (v1) namespace: {{session_namespace}}
+11:17:39AM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: {{session_namespace}}
 11:17:39AM:  ^ Waiting for 1 unavailable replicas
-11:17:39AM:  L ok: waiting on replicaset/simple-app-6b4488bc45 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
-11:17:39AM:  L ongoing: waiting on pod/simple-app-6b4488bc45-5mmfr (v1) namespace: lab-getting-started-k14s-w01-s001
+11:17:39AM:  L ok: waiting on replicaset/simple-app-6b4488bc45 (apps/v1) namespace: {{session_namespace}}
+11:17:39AM:  L ongoing: waiting on pod/simple-app-6b4488bc45-5mmfr (v1) namespace: {{session_namespace}}
 11:17:39AM:     ^ Pending: ContainerCreating
 11:17:39AM: ---- waiting on 1 changes [1/2 done] ----
-11:17:41AM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:17:41AM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: {{session_namespace}}
 11:17:41AM:  ^ Waiting for 1 unavailable replicas
-11:17:41AM:  L ok: waiting on replicaset/simple-app-6b4488bc45 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
-11:17:41AM:  L ok: waiting on pod/simple-app-6b4488bc45-5mmfr (v1) namespace: lab-getting-started-k14s-w01-s001
-11:17:43AM: ok: reconcile deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:17:41AM:  L ok: waiting on replicaset/simple-app-6b4488bc45 (apps/v1) namespace: {{session_namespace}}
+11:17:41AM:  L ok: waiting on pod/simple-app-6b4488bc45-5mmfr (v1) namespace: {{session_namespace}}
+11:17:43AM: ok: reconcile deployment/simple-app (apps/v1) namespace: {{session_namespace}}
 11:17:43AM: ---- applying complete [2/2 done] ----
 11:17:43AM: ---- waiting complete [2/2 done] ----
 
 Succeeded
 ```
 
-We can now list the applications we have deployed on our namespace:
+To list the applications that have been deployed to the current namespace, you can run:
 
 ```execute-1
 kapp ls
 ```
 
+This will list a single application called `simple-app`, corresponding to the name of the application we specified using the `-a` option when `kapp` was originally run to deploy the application.
+
 ```
-Apps in namespace 'lab-getting-started-k14s-w01-s001'
+Apps in namespace '{{session_namespace}}'
 
 Name        Namespaces                         Lcs   Lca
-simple-app  lab-getting-started-k14s-w01-s001  true  21s
+simple-app  {{session_namespace}}  true  21s
 
 Lcs: Last Change Successful
 Lca: Last Change Age
@@ -93,21 +149,23 @@ Lca: Last Change Age
 Succeeded
 ```
 
-Also, we can inspect all the Kubernetes resources created for `sample-app`:
+To inspect all the Kubernetes resources created for the application called `sample-app`, run:
 
-```execute-1
+```execute
 kapp inspect -a simple-app --tree
 ```
+
+The output should be similar to:
 
 ```
 Resources in app 'simple-app'
 
 Namespace                          Name                             Kind        Owner    Conds.  Rs  Ri  Age
-lab-getting-started-k14s-w01-s001  simple-app                       Service     kapp     -       ok  -   7m
-lab-getting-started-k14s-w01-s001   L simple-app                    Endpoints   cluster  -       ok  -   7m
-lab-getting-started-k14s-w01-s001  simple-app                       Deployment  kapp     2/2 t   ok  -   7m
-lab-getting-started-k14s-w01-s001   L simple-app-9b466965b          ReplicaSet  cluster  -       ok  -   7m
-lab-getting-started-k14s-w01-s001   L.. simple-app-9b466965b-jzpzs  Pod         cluster  4/4 t   ok  -   7m
+{{session_namespace}}  simple-app                       Service     kapp     -       ok  -   7m
+{{session_namespace}}   L simple-app                    Endpoints   cluster  -       ok  -   7m
+{{session_namespace}}  simple-app                       Deployment  kapp     2/2 t   ok  -   7m
+{{session_namespace}}   L simple-app-9b466965b          ReplicaSet  cluster  -       ok  -   7m
+{{session_namespace}}   L.. simple-app-9b466965b-jzpzs  Pod         cluster  4/4 t   ok  -   7m
 
 Rs: Reconcile state
 Ri: Reconcile information
@@ -117,17 +175,21 @@ Ri: Reconcile information
 Succeeded
 ```
 
-Note that it even knows about resources it did not directly create (such as ReplicaSet and Endpoints).
+As you can see, `kapp` will list resources it did not directly create (such as replicaset, pods and endpoints), but which are created as a side effect of the deployment and service resources being created.
 
-We can also get the logs for our application:
+You can also get the logs for the application:
 
-```execute-1
+```execute
 kapp logs -f -a simple-app
 ```
+
+For our simple Go application you should see log output similar to:
 
 ```
 # starting tailing 'simple-app-6f884d8d9d-nn5ds > simple-app' logs
 simple-app-6f884d8d9d-nn5ds > simple-app | 2019/05/09 20:43:36 Server started
 ```
 
-`inspect` and `logs` commands demonstrate why it's convenient to view resources in "bulk". For example, `logs` command will tail any existing or new Pod that is part of simple-app application, even after we make changes and redeploy.
+The `inspect` and `logs` commands make it convenient to view resources related to an application by using only the name of the application.
+
+For example, the `logs` command will tail any existing or new pod that is part of `simple-app` application, even after we make changes and redeploy, without needing to identify the names of the individual pods.
