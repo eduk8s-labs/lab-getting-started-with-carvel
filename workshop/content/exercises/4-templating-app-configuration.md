@@ -1,10 +1,22 @@
-Managing application configuration is a hard problem. As an application matures, typically configuration needs to be tweaked for different environments, and different constraints. This leads to the desire to expose several, hopefully not too many, configuration knobs that could be tweaked at the time of the deploy.
+Managing application configuration is a hard problem. As an application matures, typically configuration needs to be tweaked for different environments, and different constraints. This leads to the desire to expose several, hopefully not too many, configuration knobs that could be tweaked at the time of the deployment.
 
-This problem is typically solved in two ways: templating or patching. [ytt](https://get-ytt.io/) supports both approaches. In this section we'll see how [ytt](https://get-ytt.io/) allows to template YAML configuration, and in the next section, we'll see how it can patch YAML configuration via overlays.
+This problem is typically solved in two ways: templating or patching. Tools which exist to solve this problem are `helm` and `kustomize`. The Carvel project also has its own tool called [ytt](https://get-ytt.io/), which supports both approaches.
 
-Unlike many [other tools used for templating](https://github.com/k14s/ytt/blob/master/docs/ytt-vs-x.md#ytt-vs-x), ytt takes a different approach to working with YAML files. Instead of interpreting YAML configuration as plain text, it works with YAML structures such as maps, lists, YAML documents, scalars, etc. By doing so ytt is able to eliminate a lot of problems that plague other tools (character escaping, ambiguity, etc.). Additionally ytt provides Python-like language ([Starlark](https://github.com/bazelbuild/starlark)) that executes in a hermetic environment making it friendly, yet more deterministic compared to just using general purpose languages directly or non-familiar custom templating languages. Take a look at [ytt: The YAML Templating Tool that simplifies complex configuration management](https://developer.ibm.com/blogs/yaml-templating-tool-to-simplify-complex-configuration-management/) for a more detailed introduction.
+In this section we will see how `ytt` allows you to templatize YAML configuration, and in the next section, we'll see how it can patch YAML configuration via overlays.
 
-To tie it all together, let's take a look at `config-step-2-template/config.yml`. You'll immediately notice that YAML comments (#@ ...) store templating metadata within a YAML file, for example:
+Unlike many [other tools used for templating](https://github.com/k14s/ytt/blob/master/docs/ytt-vs-x.md#ytt-vs-x), `ytt` takes a different approach to working with YAML files. Instead of interpreting YAML configuration as plain text, it works with YAML structures such as maps, lists, YAML documents, scalars, etc. By doing so `ytt` is able to eliminate a lot of problems that plague other tools (character escaping, ambiguity, etc.).
+
+On top that, `ytt` provides a Python-like language ([Starlark](https://github.com/bazelbuild/starlark)) that executes in a hermetic environment, making it friendly, yet more deterministic compared to intermixing a general purpose language with a template directly, or other non-familiar custom templating languages.
+
+Take a look at [ytt: The YAML Templating Tool that simplifies complex configuration management](https://developer.ibm.com/blogs/yaml-templating-tool-to-simplify-complex-configuration-management/) for a more detailed introduction.
+
+To tie it all together, let's take a look at `config-step-2-template/config.yml`. You can view the file by running:
+
+```execute
+cat config-step-2-template/config.yml
+```
+
+You should immediately notice that YAML comments (#@ ...) are used to store templating metadata within the YAML file. For example:
 
 ```
         env:
@@ -12,7 +24,15 @@ To tie it all together, let's take a look at `config-step-2-template/config.yml`
           value: #@ data.values.hello_msg
 ```
 
-Above snippet tells ytt that `HELLO_MSG` environment variable value should be set to the value of `data.values.hello_msg`. __data.values__ structure comes from the builtin ytt `data` library that allows us to expose configuration knobs through a separate file, namely `config-step-2-template/values.yml`. Deployers of `simple-app` can now decide, for example, what hello message to set without making application code or configuration changes.
+The above snippet tells `ytt` that the `HELLO_MSG` environment variable value should be set to the value of `data.values.hello_msg`.
+
+The `data.values` structure comes from the builtin `data` library of `ytt`, that allows us to expose configuration knobs through a separate file, namely `config-step-2-template/values.yml`. To view the values file, run:
+
+```execute
+cat config-step-2-template/values.yml
+```
+
+Deployers of `simple-app` can now decide, for example, what hello message to set without making application code or configuration changes.
 
 Let's chain ytt and kapp to deploy an update, and note `-v` flag which sets hello_msg value:
 

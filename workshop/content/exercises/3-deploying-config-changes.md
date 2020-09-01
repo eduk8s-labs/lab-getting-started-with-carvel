@@ -87,6 +87,6 @@ What this means is that one can use `kapp` with any other tools that produce Kub
 helm template my-chart --values values.yml | kapp deploy -a my-app -f- --yes
 ```
 
-In this case the output from `helm` command is piped directly into `kapp`.
+In this case the output from `helm` command is piped directly into `kapp`. You could do a similar thing using other tools such as `kustomize`.
 
 You can therefore start to see how the Carvel tools are designed in the UNIX philsophy of small individual tools designed to perform one task, that can be composed together to create more complex workflows. Such workflows are not restricted to being composed of just tools from the Carvel project.
