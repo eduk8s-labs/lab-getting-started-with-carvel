@@ -6,11 +6,11 @@ In this section we will see how `ytt` allows you to templatize YAML configuratio
 
 Unlike many [other tools used for templating](https://github.com/k14s/ytt/blob/master/docs/ytt-vs-x.md#ytt-vs-x), `ytt` takes a different approach to working with YAML files. Instead of interpreting YAML configuration as plain text, it works with YAML structures such as maps, lists, YAML documents, scalars, etc. By doing so `ytt` is able to eliminate a lot of problems that plague other tools (character escaping, ambiguity, etc.).
 
-On top that, `ytt` provides a Python-like language ([Starlark](https://github.com/bazelbuild/starlark)) that executes in a hermetic environment, making it friendly, yet more deterministic compared to intermixing a general purpose language with a template directly, or other non-familiar custom templating languages.
+On top of that, `ytt` provides a Python-like language ([Starlark](https://github.com/bazelbuild/starlark)) that executes in a hermetic environment, making it friendly, yet more deterministic compared to intermixing a general purpose language with a template directly, or other non-familiar custom templating languages.
 
 Take a look at [ytt: The YAML Templating Tool that simplifies complex configuration management](https://developer.ibm.com/blogs/yaml-templating-tool-to-simplify-complex-configuration-management/) for a more detailed introduction.
 
-To tie this all together, let's take a look at `config-step-2-template/config.yml`. You can view the file by running:
+To tie all these statements together, let's take a look at `config-step-2-template/config.yml`. You can view the file by running:
 
 ```execute
 cat config-step-2-template/config.yml
