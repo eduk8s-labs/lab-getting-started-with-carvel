@@ -6,7 +6,7 @@ kubectl version
 
 The workshop uses these action blocks for various purposes. Anytime you see such a block with an icon on the right hand side, you can click on it and it will perform the listed action for you.
 
-To version what versions of the Carvel tools we will be using, you can run:
+To see what versions of the Carvel tools we will be using, you can run:
 
 ```execute
 ytt --version
