@@ -1,28 +1,40 @@
-K8s embraced use of container images to package source code and its dependencies. One way to deliver updated application is to rebuild a container when changing source code. [kbld](https://get-kbld.io/) is a small tool that provides a simple way to insert container image building into deployment workflow. kbld looks for images within application configuration (currently it looks for image keys), checks if there is an associated source code, if so builds these images via Docker (could be pluggable with other builders), and finally captures built image digests and updates configuration with new references.
+Kubernetes embraced the use of container images to package source code and its dependencies. Container images can be created using tools such as `docker`, `pack` if using Buildpacks, or the Maven `spring-boot:build-image` command if developing Spring Boot applications.
 
-As we are going to build our image locally, we will pull down the source code locally:
+To rebuild a container image when changing application source would typically involve manually running a build using one of these tools, and then pushing the resulting image to an image registry accessible to the Kubernetes cluster so it can be deployed. Any deployment resource would then need to be modified to use the specific version for the new image.
 
-```execute-1
+The [kbld](https://get-kbld.io/) tool from Carvel is a small tool that provides a simple way to insert container image building into a deployment workflow. `kbld` looks for images within application configuration (currently it looks for image keys), checks if there is an associated source code definition, and if so triggers a build of the container image using `docker` (or other defined build mechanism), then finally captures the image digests for and built images, and updates configuration with new image references.
+
+As we are going to build our image locally, we first need to pull down the source code:
+
+```execute
 git clone https://github.com/eduk8s-labs/sample-app-go
 ```
 
-This has created a new folder called `sample-app-go` where we can find the source code for the application.
+This has created a new folder called `sample-app-go` where you can find the source code for the application.
 
-Before running kbld, let's change `app.go` by adding a line to make a small change in our application. Add the following snippet after `line 14` in that file.
+The configuration file `config-step-3-build-local/build.yml` is a new configuration, which specifies that the image `quay.io/eduk8s-labs/sample-app-go` should be built from source code in the `sample-app-go` sub directory when `kbld` runs. To view the configuration file run:
+
+```execute
+cat config-step-3-build-local/build.yml
+```
+
+You should see:
 
 ```
-fmt.Fprintf(w, "<p>local change</p>\n")
+apiVersion: kbld.k14s.io/v1alpha1
+kind: Sources
+sources:
+- image: quay.io/eduk8s-labs/sample-app-go
+  path: sample-app-go
 ```
 
-`config-step-3-build-local/build.yml` is a new file in this config directory, which specifies that `quay.io/eduk8s-labs/sample-app-go` should be built from the current working directory where kbld runs (root of the repo).
-
-__NOTE__: As we're using a real cluster, just read on but you may have to wait until the next section when we show how to use a remote registry.
-
-Let's insert kbld between ytt and kapp so that images used in our configuration are built before they are deployed by kapp:
+Now insert `kbld` between `ytt` and `kapp` so that images used in our configuration are built, if necessary, before they are deployed by `kapp`.
 
 ```execute-1
 ytt template -f config-step-3-build-local/ -v hello_msg="carvel user" | kbld -f- | kapp deploy -a simple-app -f- --diff-changes --yes
 ```
+
+The output should be similar to the following:
 
 ```
 quay.io/eduk8s-labs/sample-app-go | starting build (using Docker): sample-app-go -> kbld:rand-1590666070030466586-8975333420-quay-io-eduk8s-labs-sample-app-go
@@ -69,7 +81,7 @@ quay.io/eduk8s-labs/sample-app-go | Untagged: kbld:rand-1590666070030466586-8975
 quay.io/eduk8s-labs/sample-app-go | finished build (using Docker)
 resolve | final: quay.io/eduk8s-labs/sample-app-go -> kbld:quay-io-eduk8s-labs-sample-app-go-sha256-03eb944c407c455f8966623ed600f157c23633577d02e51a6763ba1dd546e471
 
-@@ update deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001 @@
+@@ update deployment/simple-app (apps/v1) namespace: {{session_namespace}} @@
   ...
   4,  4       deployment.kubernetes.io/revision: "3"
       5 +     kbld.k14s.io/images: |
@@ -98,51 +110,50 @@ resolve | final: quay.io/eduk8s-labs/sample-app-go -> kbld:quay-io-eduk8s-labs-s
 Changes
 
 Namespace                          Name        Kind        Conds.  Age  Op      Wait to    Rs  Ri
-lab-getting-started-k14s-w01-s001  simple-app  Deployment  2/2 t   6m   update  reconcile  ok  -
+{{session_namespace}}  simple-app  Deployment  2/2 t   6m   update  reconcile  ok  -
 
 Op:      0 create, 0 delete, 1 update, 0 noop
 Wait to: 1 reconcile, 0 delete, 0 noop
 
 11:41:16AM: ---- applying 1 changes [0/1 done] ----
-11:41:16AM: update deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:16AM: update deployment/simple-app (apps/v1) namespace: {{session_namespace}}
 11:41:16AM: ---- waiting on 1 changes [0/1 done] ----
-11:41:18AM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:18AM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: {{session_namespace}}
 11:41:18AM:  ^ Waiting for generation 10 to be observed
-11:41:18AM:  L ok: waiting on replicaset/simple-app-8d7df8bb8 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
-11:41:18AM:  L ok: waiting on replicaset/simple-app-7b95fdff84 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
-11:41:18AM:  L ok: waiting on replicaset/simple-app-6cbfc8b6d6 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
-11:41:18AM:  L ok: waiting on replicaset/simple-app-5bf54866b6 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
-11:41:18AM:  L ok: waiting on pod/simple-app-7b95fdff84-4v952 (v1) namespace: lab-getting-started-k14s-w01-s001
-11:41:18AM:  L ongoing: waiting on pod/simple-app-6cbfc8b6d6-q4d7w (v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:18AM:  L ok: waiting on replicaset/simple-app-8d7df8bb8 (apps/v1) namespace: {{session_namespace}}
+11:41:18AM:  L ok: waiting on replicaset/simple-app-7b95fdff84 (apps/v1) namespace: {{session_namespace}}
+11:41:18AM:  L ok: waiting on replicaset/simple-app-6cbfc8b6d6 (apps/v1) namespace: {{session_namespace}}
+11:41:18AM:  L ok: waiting on replicaset/simple-app-5bf54866b6 (apps/v1) namespace: {{session_namespace}}
+11:41:18AM:  L ok: waiting on pod/simple-app-7b95fdff84-4v952 (v1) namespace: {{session_namespace}}
+11:41:18AM:  L ongoing: waiting on pod/simple-app-6cbfc8b6d6-q4d7w (v1) namespace: {{session_namespace}}
 11:41:18AM:     ^ Pending: ContainerCreating
-11:41:20AM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:20AM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: {{session_namespace}}
 11:41:20AM:  ^ Waiting for 1 unavailable replicas
-11:41:20AM:  L ok: waiting on replicaset/simple-app-8d7df8bb8 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
-11:41:20AM:  L ok: waiting on replicaset/simple-app-7b95fdff84 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
-11:41:20AM:  L ok: waiting on replicaset/simple-app-6cbfc8b6d6 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
-11:41:20AM:  L ok: waiting on replicaset/simple-app-5bf54866b6 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
-11:41:20AM:  L ok: waiting on pod/simple-app-7b95fdff84-4v952 (v1) namespace: lab-getting-started-k14s-w01-s001
-11:41:20AM:  L ongoing: waiting on pod/simple-app-6cbfc8b6d6-q4d7w (v1) namespace: lab-getting-started-k14s-w01-s001
+11:41:20AM:  L ok: waiting on replicaset/simple-app-8d7df8bb8 (apps/v1) namespace: {{session_namespace}}
+11:41:20AM:  L ok: waiting on replicaset/simple-app-7b95fdff84 (apps/v1) namespace: {{session_namespace}}
+11:41:20AM:  L ok: waiting on replicaset/simple-app-6cbfc8b6d6 (apps/v1) namespace: {{session_namespace}}
+11:41:20AM:  L ok: waiting on replicaset/simple-app-5bf54866b6 (apps/v1) namespace: {{session_namespace}}
+11:41:20AM:  L ok: waiting on pod/simple-app-7b95fdff84-4v952 (v1) namespace: {{session_namespace}}
+11:41:20AM:  L ongoing: waiting on pod/simple-app-6cbfc8b6d6-q4d7w (v1) namespace: {{session_namespace}}
 11:41:20AM:     ^ Pending: ImagePullBackOff (message: Back-off pulling image "kbld:quay-io-eduk8s-labs-sample-app-go-sha256-03eb944c407c455f8966623ed600f157c23633577d02e51
 a6763ba1dd546e471")
 ...
 ```
 
-__NOTE__: As we're using a real cluster, our deployment can't access the image we just built. This command will not finish, so you will need to exist manually.
+Note that you will see that the deployment is failing. This is because we haven't configured `kbld` to push the image to the image registry referenced by the image name. We can't do this when using the original image name as the image was hosted on `quay.io`. We will show the required steps to push to an alternate image registry we do have access to in the next section. For now, stop the attempted deployment by interrupting `kapp`.
 
-```execute-1
-<ctrl-c>
+```terminal:interrupt
 ```
 
-As you can see, the above output shows that kbld received ytt's produced configuration, and used the docker build command to build simple app image, ultimately capturing a specific reference and passing it onto kapp.
+What you can see from the above output though, is how `kbld` triggered a build of the container image using `docker` based on the requirement for the image in the configuration received from `ytt`. Further, `kbld` modified the image reference to include the new image digest before passing the configuration onto `kapp` for deployment.
 
-If the deploy was successful you could check out application in your browser or via curl to see the updated response, but this is not our case.
-
-It's also worth showing that kbld not only builds images and updates references but also annotates Kubernetes resources with image metadata it collects and makes it quickly accessible for debugging. This may not be that useful during development but comes handy when investigating environment (staging, production, etc.) state.
+It's also worth noting that `kbld` not only builds images and updates references but also annotates Kubernetes resources with image metadata it collects and makes it quickly accessible for debugging. This may not be that useful during development but comes handy when investigating environment (staging, production, etc.) state.
 
 ```execute-1
 kapp inspect -a simple-app --raw --filter-kind Deployment --tty=false | kbld inspect -f-
 ```
+
+The output from this will be similar to:
 
 ```
 Images
@@ -154,7 +165,7 @@ Metadata  - Path: /home/eduk8s/exercises/sample-app-go
             RemoteURL: https://github.com/eduk8s-labs/sample-app-go
             SHA: b677913bc9e92c45d6136b776bce011b45666619
             Type: git
-Resource  deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s003
+Resource  deployment/simple-app (apps/v1) namespace: {{session_namespace}}
 
 1 images
 

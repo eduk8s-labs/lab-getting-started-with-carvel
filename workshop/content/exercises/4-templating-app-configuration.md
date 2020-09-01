@@ -34,7 +34,17 @@ To view the values file, run:
 cat config-step-2-template/values.yml
 ```
 
-Someone deploying our `simple-app` application can now modify what hello message is set, without making changes to the application code, to the main deployment resource, or even the values file.
+The output should be:
+
+```
+#@data/values
+---
+svc_port: 8080
+app_port: 8080
+hello_msg: stranger
+```
+
+Someone deploying our `simple-app` application can now modify what hello message is set to without making changes to the application code or the main deployment resource, by editing it in the values file, or even by supplying an override.
 
 Let's chain `ytt` and `kapp` to deploy an update to our application. Note how we can use the `-v` flag to `ytt` to override the data value for the hello message, thus avoiding need to change the values file.
 
