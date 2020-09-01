@@ -79,7 +79,7 @@ curl http://simple-app.{{ session_namespace }}.svc.cluster.local:8080
 
 > NOTE: This actually worked even though we hadn't set up port forwarding because this workshop environment is running in the same Kubernetes cluster as the deployment was made. You will still need to use `kubectl port-forward` or `kwt` on your local computer if that is where you were working from.
 
-One of the key features of `kapp` mentioned above is that when detecting changes it will compare against the live version already deployed in the cluster. Because this means the source of comparison is what is live in the Kubernetes cluster, `kapp` does not really care where the application configuration you want to apply comes from, you do not need to have the new configuration stored as files in the filesystem.
+One of the key features of `kapp` mentioned above is that when detecting changes it will compare against the live version already deployed in the cluster. Because it compares against what is live in the Kubernetes cluster, `kapp` does not really care where the application configuration you want to apply comes from, you do not even need to have the new configuration stored as files in the filesystem.
 
 What this means is that one can use `kapp` with any other tools that produce Kubernetes configuration, for example, if you were using `helm` you could run:
 

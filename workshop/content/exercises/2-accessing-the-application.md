@@ -32,7 +32,7 @@ If you were using Linux or macOS and were connected to a Kubernetes cluster, you
 sudo -E kwt net start
 ```
 
-What this will do is expose the internal Kubernetes cluster IP subset and cluster DNS to your local machine. This will allow you to access any service in the Kubernetes cluster as if you were inside of the Kubernetes cluster.
+What this will do is expose the internal Kubernetes cluster IP subnet and cluster DNS to your local machine. This will allow you to access any service in the Kubernetes cluster as if you were inside of the Kubernetes cluster.
 
 For example, if using `kwt`, you would be able to access our application on your local machine using:
 
