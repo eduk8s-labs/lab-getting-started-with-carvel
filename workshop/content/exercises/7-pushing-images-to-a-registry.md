@@ -24,33 +24,45 @@ Run the combined command to process the template, build the image and deploy it,
 ytt template -f config-step-4-build-and-push/ -v hello_msg="carvel user" -v push_images=true -v push_images_repo={{ registry_host }}/carvel/sample-app-go | kbld -f- | kapp deploy -a simple-app -f- --diff-changes --yes
 ```
 
-The key parts of the output which of interest are:
+The key parts of the output which are of interest are:
 
 ```
 ...
-quay.io/eduk8s-labs/sample-app-go | starting push (using Docker): kbld:docker-io-dkalinin-k8s-simple-app-sha256-268c33c1257eed727937fb22a68b91f065bf1e10c7ba23c5d897f2a2ab67f76d -> quay.io/eduk8s-labs/sample-app-go
-quay.io/eduk8s-labs/sample-app-go | The push refers to repository [quay.io/eduk8s-labs/sample-app-go]
-quay.io/eduk8s-labs/sample-app-go | 2c82b4929a5c: Preparing
-quay.io/eduk8s-labs/sample-app-go | 2c82b4929a5c: Layer already exists
-quay.io/eduk8s-labs/sample-app-go | latest: digest: sha256:4c8b96d4fffdfae29258d94a22ae4ad1fe36139d47288b8960d9958d1e63a9d0 size: 528
-quay.io/eduk8s-labs/sample-app-go | finished push (using Docker)
-resolve | final: quay.io/eduk8s-labs/sample-app-go -> index.quay.io/eduk8s-labs/sample-app-go@sha256:4c8b96d4fffdfae29258d94a22ae4ad1fe36139d47288b8960d9958d1e63a9d0
---- update deployment/simple-app (apps/v1) namespace: default
+{{session_namespace}}-registry.training.getwarped.org/carvel/sample-app-go | starting push (using Docker): kbld:quay-io-eduk8s-labs-sample-app-go-sha256-8ce490851d3f58808a6fbe418dc3775719c1a5b694fef5529b1fc07d7d97cf57 -> {{session_namespace}}-registry.training.getwarped.org/carvel/sample-app-go:kbld-rand-1598962590309459451-219513548161
+{{session_namespace}}-registry.training.getwarped.org/carvel/sample-app-go | The push refers to repository [{{session_namespace}}-registry.training.getwarped.org/carvel/sample-app-go]
+{{session_namespace}}-registry.training.getwarped.org/carvel/sample-app-go | aab6520b305d: Preparing
+{{session_namespace}}-registry.training.getwarped.org/carvel/sample-app-go | aab6520b305d: 
+{{session_namespace}}-registry.training.getwarped.org/carvel/sample-app-go | Pushed
+{{session_namespace}}-registry.training.getwarped.org/carvel/sample-app-go | kbld-rand-1598962590309459451-219513548161: digest: sha256:c9b355704f63e231a282309ffa6f314d56e1060453e123e50a462a4ff3fb0819 size: 528
+{{session_namespace}}-registry.training.getwarped.org/carvel/sample-app-go | finished push (using Docker)
+resolve | final: quay.io/eduk8s-labs/sample-app-go -> {{session_namespace}}-registry.training.getwarped.org/carvel/sample-app-go@sha256:c9b355704f63e231a282309ffa6f314d56e1060453e123e50a462a4ff3fb0819
+
+@@ update deployment/simple-app (apps/v1) namespace: {{session_namespace}} @@
   ...
- 30, 30             value: carvel user
- 31     -         image: kbld:docker-io-dkalinin-k8s-simple-app-sha256-f999be3e0d96c78dc4d4c8330c8de8aff3c91f5e152f021d01cb3cd0e92a1797
-     31 +         image: index.docker.io/your-username/your-repo@sha256:4c8b96d4fffdfae29258d94a22ae4ad1fe36139d47288b8960d9958d1e63a9d0
- 32, 32           name: simple-app
- 33, 33   status:
+ 12, 12             Type: git
+ 13     -         URL: kbld:quay-io-eduk8s-labs-sample-app-go-sha256-8ce490851d3f58808a6fbe418dc3775719c1a5b694fef5529b1fc07d7d97cf57
+     13 +         URL: {{session_namespace}}-registry.training.getwarped.org/carvel/sample-app-go@sha256:c9b355704f63e231a282309ffa6f314d56e1060453e123e50a462a4ff3fb0819
+ 14, 14     creationTimestamp: "2020-09-01T12:14:52Z"
+ 15, 15     generation: 2
+  ...
+132,132             value: carvel user
+133     -         image: kbld:quay-io-eduk8s-labs-sample-app-go-sha256-8ce490851d3f58808a6fbe418dc3775719c1a5b694fef5529b1fc07d7d97cf57
+    133 +         image: {{session_namespace}}-registry.training.getwarped.org/carvel/sample-app-go@sha256:c9b355704f63e231a282309ffa6f314d56e1060453e123e50a462a4ff3fb0819
+134,134           name: simple-app
+    135 +       imagePullSecrets:
+    136 +       - name: registry-credentials
+135,137   status:
+136,138     conditions:
 
 Changes
 
-Namespace  Name        Kind        Conditions  Age  Changed  Ignored Reason
-default    simple-app  Deployment  2 OK / 2    1d   mod      -
+Namespace                                 Name        Kind        Conds.  Age  Op      Op st.  Wait to    Rs       Ri  
+{{session_namespace}}  simple-app  Deployment  1/2 t   1m   update  -       reconcile  ongoing  Waiting for 1 unavailable replicas  
 
-0 add, 0 delete (13 hidden), 1 update, 0 keep (1 hidden)
+Op:      0 create, 0 delete, 1 update, 0 noop
+Wait to: 1 reconcile, 0 delete, 0 noop
 
-1 changes
+12:16:33PM: ---- applying 1 changes [0/1 done] ----
 ...
 ```
 
@@ -62,7 +74,7 @@ If we inspect again the application we see the new referenced image:
 kapp inspect -a simple-app --raw --filter-kind Deployment --tty=false | kbld inspect -f-
 ```
 
-For example:
+The output should be similar to:
 
 ```
 Images
@@ -81,6 +93,6 @@ Resource  deployment/simple-app (apps/v1) namespace: {{session_namespace}}
 Succeeded
 ```
 
-A benefit of using `kbld` you will see is that the image digest reference (e.g. {{ registry_host }}/carvel/sample-app-go@sha256:4c8b96...) was used instead of a tagged reference (e.g. kbld:docker-io...).
+You will note how the image name has been rewritten to reference the image from the image registry it was pushed to, rather than the original location for the image. Also you will see that the image digest reference (e.g. {{ registry_host }}/carvel/sample-app-go@sha256:4c8b96...) was used instead of a tagged reference (e.g. kbld:docker-io...).
 
 Digest references are preferred to other image reference forms as they are `immutable`, hence provide a guarantee that the exact version of built software will be deployed.
