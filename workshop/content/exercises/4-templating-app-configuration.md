@@ -26,9 +26,11 @@ You should immediately notice that YAML comments (#@ ...) are used to store temp
 
 The above snippet tells `ytt` that the `HELLO_MSG` environment variable value should be set to the value of `data.values.hello_msg`.
 
-The `data.values` structure comes from the builtin `data` library of `ytt`, that allows us to expose configuration knobs through a separate file, namely `config-step-2-template/values.yml`. To view the values file, run:
+The `data.values` structure comes from the builtin `data` library of `ytt`, that allows us to expose configuration knobs through a separate file, namely `config-step-2-template/values.yml`.
 
-```execute
+To view the values file, run:
+
+```execute-2
 cat config-step-2-template/values.yml
 ```
 
