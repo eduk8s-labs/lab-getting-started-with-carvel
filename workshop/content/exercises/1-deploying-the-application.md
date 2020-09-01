@@ -193,3 +193,19 @@ simple-app-6f884d8d9d-nn5ds > simple-app | 2019/05/09 20:43:36 Server started
 The `inspect` and `logs` commands make it convenient to view resources related to an application by using only the name of the application.
 
 For example, the `logs` command in this case (since we use `-f`) will tail any existing or new pod that is part of `simple-app` application, even after we make changes and redeploy, without needing to identify the names of the individual pods.
+
+Although not a configuration change, to illustrate this, kill the currently running pod using:
+
+```execute-2
+kubectl delete pods -l simple-app
+```
+
+You will see logging from the original pod stopping, and the logging from the replacement pod then starting.
+
+If you were using `kubectl logs -f deployment/simple-app`, killing of the pod would have caused `kubectl logs` to exit.
+
+Before we continue, interrupt the tailing of the logs.
+
+```terminal:interrupt
+session: 1
+```
