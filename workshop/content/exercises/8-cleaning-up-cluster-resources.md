@@ -1,10 +1,16 @@
-Given that kapp tracks all resources that were deployed to k8s cluster, deleting them is as easy as running kapp delete command:
+Given that `kapp` tracks all resources that were deployed to the Kubernetes cluster, deleting them is as easy as running the `kapp` delete command:
 
-```execute-1
+```execute
 kapp delete -a simple-app
 ```
 
-Provide confirmation to delete all the resources:
+When prompted, confirm that you do indeed want to delete all the resources:
+
+```terminal:input
+text: y
+```
+
+When complete the output should be:
 
 ```
 Changes
@@ -21,8 +27,8 @@ Continue? [yN]: y
 ...
 ```
 
-We can verify now our namespace is empty:
+To verify that the namespace is empty run:
 
-```execute-1
+```execute
 kubectl get all
 ```

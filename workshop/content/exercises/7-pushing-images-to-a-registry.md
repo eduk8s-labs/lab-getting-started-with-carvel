@@ -66,7 +66,7 @@ Wait to: 1 reconcile, 0 delete, 0 noop
 ...
 ```
 
-This time the build should be successful.
+This time the build and deployment should be successful.
 
 If we inspect again the application we see the new referenced image:
 
@@ -95,4 +95,4 @@ Succeeded
 
 You will note how the image name has been rewritten to reference the image from the image registry it was pushed to, rather than the original location for the image. Also you will see that the image digest reference (e.g. {{ registry_host }}/carvel/sample-app-go@sha256:4c8b96...) was used instead of a tagged reference (e.g. kbld:docker-io...).
 
-Digest references are preferred to other image reference forms as they are `immutable`, hence provide a guarantee that the exact version of built software will be deployed.
+Digest references are preferred to other image reference forms as they are immutable, hence provide a guarantee that the exact version of built software will be deployed.
