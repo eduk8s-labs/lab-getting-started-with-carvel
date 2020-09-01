@@ -86,7 +86,7 @@ Wait to: 1 reconcile, 0 delete, 0 noop
 
 This time the build and deployment should be successful.
 
-If we inspect again the application we see the new referenced image:
+If we inspect again the application we see the new image being referenced:
 
 ```execute-1
 kapp inspect -a simple-app --raw --filter-kind Deployment --tty=false | kbld inspect -f-

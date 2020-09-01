@@ -45,7 +45,7 @@ To view the contents of the file run:
 cat config-step-1-minimal/config.yml
 ```
 
-As is the case with self contained resource configurations for Kubernetes, the name of the container image and the environment variable `HELLO_MSG` are hard coded into the deployment resource.
+As is the case with self contained resource configurations for Kubernetes, the name of the container image and an environment variable `HELLO_MSG` needed by the aplication are hard coded into the deployment resource.
 
 If using `kubectl` to deploy the application to Kubernetes, you would use the command:
 

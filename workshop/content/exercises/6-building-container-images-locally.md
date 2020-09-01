@@ -147,7 +147,7 @@ Note that you will see that the deployment is failing. This is because we haven'
 
 What you can see from the above output though, is how `kbld` triggered a build of the container image using `docker` based on the requirement for the image in the configuration received from `ytt`. Further, `kbld` modified the image reference to include the new image digest before passing the configuration onto `kapp` for deployment.
 
-It's also worth noting that `kbld` not only builds images and updates references but also annotates Kubernetes resources with image metadata it collects and makes it quickly accessible for debugging. This may not be that useful during development but comes handy when investigating environment (staging, production, etc.) state.
+It's also worth noting that `kbld` not only builds images and updates references but also annotates Kubernetes resources with image metadata it collects and makes it quickly accessible for debugging. This may not be that useful during development but comes in handy when investigating environment (staging, production, etc.) state.
 
 ```execute-1
 kapp inspect -a simple-app --raw --filter-kind Deployment --tty=false | kbld inspect -f-
