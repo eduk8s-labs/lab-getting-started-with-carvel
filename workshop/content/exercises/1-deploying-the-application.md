@@ -1,6 +1,6 @@
 We will use a small [Go application](https://github.com/eduk8s-labs/sample-app-go) as our example to showcase how tools from Carvel can work together to aid in the process of developing and deploying an application.
 
-A pre-built container image for the application is published at `quay.io/eduk8s-labs/sample-app-go:latest`.
+A pre-built container image for the application is published at `quay.io/eduk8s-labs/sample-app-go:latest`. We will use this initially, but in later steps we will use one of the Carvel tools to coordinate the building of the container image from source code.
 
 The current directory contains multiple sub directories, with variations of our application configuration, that we will use during the workshop. To view the files run:
 
@@ -62,8 +62,8 @@ kubectl apply -f config-step-1-minimal/config.yml --dry-run=client
 All that `kubectl` would output is the list of affected resources.
 
 ```
-deployment.apps/simple-app created
-service/simple-app created
+deployment.apps/simple-app created (dry run)
+service/simple-app created (dry run)
 ```
 
 What `kubectl` does not do is tell you the specifics of the changes that are being made so you can confirm that is what you expected.
@@ -133,7 +133,7 @@ To list the applications that have been deployed to the current namespace, you c
 kapp ls
 ```
 
-This will list a single application called `simple-app`, corresponding to the name of the application we specified using the `-a` option when `kapp` was originally run to deploy the application.
+This will list a single application called `simple-app`, corresponding to the name of the deployment for the application we specified using the `-a` option when `kapp` was originally run to deploy the application.
 
 ```
 Apps in namespace '{{session_namespace}}'
@@ -175,7 +175,7 @@ Ri: Reconcile information
 Succeeded
 ```
 
-As you can see, `kapp` will list resources it did not directly create (such as replicaset, pods and endpoints), but which are created as a side effect of the deployment and service resources being created.
+As you can see, `kapp` will also list resources it did not directly create (such as replicaset, pods and endpoints), but which are created as a side effect of the deployment and service resources being created.
 
 You can also get the logs for the application:
 
