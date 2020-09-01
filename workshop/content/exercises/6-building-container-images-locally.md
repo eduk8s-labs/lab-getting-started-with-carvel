@@ -2,7 +2,7 @@ Kubernetes embraced the use of container images to package source code and its d
 
 To rebuild a container image when changing application source would typically involve manually running a build using one of these tools, and then pushing the resulting image to an image registry accessible to the Kubernetes cluster so it can be deployed. Any deployment resource would then need to be modified to use the specific version for the new image.
 
-The [kbld](https://get-kbld.io/) tool from Carvel is a small tool that provides a simple way to insert container image building into a deployment workflow. `kbld` looks for images within application configuration (currently it looks for image keys), checks if there is an associated source code definition, and if so triggers a build of the container image using `docker` (or other defined build mechanism), then finally captures the image digests for and built images, and updates configuration with new image references.
+The [kbld](https://get-kbld.io/) tool from Carvel is a small tool that provides a simple way to insert container image building into a deployment workflow. `kbld` looks for images within application configuration (currently it looks for image keys), checks if there is an associated source code definition, and if so triggers a build of the container image using `docker` (or other defined build mechanism), then finally captures the image digests for any built images, and updates configuration with new image references.
 
 As we are going to build our image locally, we first need to pull down the source code:
 
@@ -140,7 +140,7 @@ a6763ba1dd546e471")
 ...
 ```
 
-Note that you will see that the deployment is failing. This is because we haven't configured `kbld` to push the image to the image registry referenced by the image name. We can't do this when using the original image name as the image was hosted on `quay.io`. We will show the required steps to push to an alternate image registry we do have access to in the next section. For now, stop the attempted deployment by interrupting `kapp`.
+Note that you will see that the deployment is failing. This is because we haven't configured `kbld` to push the image to an image registry where Kubernetes can pull it from. We will show the required steps to push the image to an image registry in the next section. For now, stop the attempted deployment by interrupting `kapp`.
 
 ```terminal:interrupt
 ```
