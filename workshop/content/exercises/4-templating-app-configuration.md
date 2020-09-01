@@ -10,7 +10,7 @@ On top that, `ytt` provides a Python-like language ([Starlark](https://github.co
 
 Take a look at [ytt: The YAML Templating Tool that simplifies complex configuration management](https://developer.ibm.com/blogs/yaml-templating-tool-to-simplify-complex-configuration-management/) for a more detailed introduction.
 
-To tie it all together, let's take a look at `config-step-2-template/config.yml`. You can view the file by running:
+To tie this all together, let's take a look at `config-step-2-template/config.yml`. You can view the file by running:
 
 ```execute
 cat config-step-2-template/config.yml
@@ -34,16 +34,18 @@ To view the values file, run:
 cat config-step-2-template/values.yml
 ```
 
-Deployers of `simple-app` can now decide, for example, what hello message to set without making application code or configuration changes.
+Someone deploying our `simple-app` application can now modify what hello message is set, without making changes to the application code, to the main deployment resource, or even the values file.
 
-Let's chain ytt and kapp to deploy an update, and note `-v` flag which sets hello_msg value:
+Let's chain `ytt` and `kapp` to deploy an update to our application. Note how we can use the `-v` flag to `ytt` to override the data value for the hello message, thus avoiding need to change the values file.
 
 ```execute-1
 ytt template -f config-step-2-template/ -v hello_msg="carvel user" | kapp deploy -a simple-app -f- --diff-changes --yes
 ```
 
+The output should be as follows. Because we use `--yes` to `kapp`, the changes were immediately accepted and applied.
+
 ```
-@@ update deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001 @@
+@@ update deployment/simple-app (apps/v1) namespace: {{session_namespace}} @@
   ...
  29, 29           - name: HELLO_MSG
  30     -           value: somebody
@@ -54,33 +56,33 @@ ytt template -f config-step-2-template/ -v hello_msg="carvel user" | kapp deploy
 Changes
 
 Namespace                          Name        Kind        Conds.  Age  Op      Wait to    Rs  Ri
-lab-getting-started-k14s-w01-s001  simple-app  Deployment  2/2 t   19m  update  reconcile  ok  -
+{{session_namespace}}  simple-app  Deployment  2/2 t   19m  update  reconcile  ok  -
 
 Op:      0 create, 0 delete, 1 update, 0 noop
 Wait to: 1 reconcile, 0 delete, 0 noop
 
 6:31:32PM: ---- applying 1 changes [0/1 done] ----
-6:31:32PM: update deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+6:31:32PM: update deployment/simple-app (apps/v1) namespace: {{session_namespace}}
 6:31:32PM: ---- waiting on 1 changes [0/1 done] ----
-6:31:34PM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+6:31:34PM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: {{session_namespace}}
 6:31:34PM:  ^ Waiting for generation 10 to be observed
-6:31:34PM:  L ok: waiting on replicaset/simple-app-c68644f6 (apps/v1) namespace: lab-getting-started-k14s-w01-s001
-6:31:34PM:  L ok: waiting on replicaset/simple-app-6f78fb84cd (apps/v1) namespace: lab-getting-started-k14s-w01-s001
-6:31:34PM:  L ok: waiting on replicaset/simple-app-5f4ddc8f6d (apps/v1) namespace: lab-getting-started-k14s-w01-s001
-6:31:34PM:  L ongoing: waiting on pod/simple-app-c68644f6-pf7mb (v1) namespace: lab-getting-started-k14s-w01-s001
+6:31:34PM:  L ok: waiting on replicaset/simple-app-c68644f6 (apps/v1) namespace: {{session_namespace}}
+6:31:34PM:  L ok: waiting on replicaset/simple-app-6f78fb84cd (apps/v1) namespace: {{session_namespace}}
+6:31:34PM:  L ok: waiting on replicaset/simple-app-5f4ddc8f6d (apps/v1) namespace: {{session_namespace}}
+6:31:34PM:  L ongoing: waiting on pod/simple-app-c68644f6-pf7mb (v1) namespace: {{session_namespace}}
 6:31:34PM:     ^ Pending
-6:31:34PM:  L ok: waiting on pod/simple-app-5f4ddc8f6d-7xx8r (v1) namespace: lab-getting-started-k14s-w01-s001
-6:31:36PM: ok: reconcile deployment/simple-app (apps/v1) namespace: lab-getting-started-k14s-w01-s001
+6:31:34PM:  L ok: waiting on pod/simple-app-5f4ddc8f6d-7xx8r (v1) namespace: {{session_namespace}}
+6:31:36PM: ok: reconcile deployment/simple-app (apps/v1) namespace: {{session_namespace}}
 6:31:36PM: ---- applying complete [1/1 done] ----
 6:31:36PM: ---- waiting complete [1/1 done] ----
 
 Succeeded
 ```
 
-We can verify again the change:
+Verify the applications works, and that the response has changed by running:
 
 ```execute-2
 curl http://simple-app.{{ session_namespace }}.svc.cluster.local:8080
 ```
 
-We covered one simple way to use ytt to help you manage application configuration. Please take a look at examples in [ytt interactive playground](https://get-ytt.io/#playground) to learn more about other ytt features which may help you manage YAML configuration more effectively.
+We covered one simple way to use `ytt` to help you manage application configuration. See the [ytt interactive playground](https://get-ytt.io/#playground) to learn more about other `ytt` features which may help you manage YAML configuration more effectively.
