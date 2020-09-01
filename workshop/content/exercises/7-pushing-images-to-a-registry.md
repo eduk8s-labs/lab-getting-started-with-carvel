@@ -1,4 +1,4 @@
-The previous section showed how to use `kbld` to build the container image. It failed to deploy in the end as the Kubernetes cluster being used didn't have access to images held by docker daemon where the build was being run.
+The previous section showed how to use `kbld` to build the container image. It failed to deploy in the end as the Kubernetes cluster being used didn't have access to images held by the docker daemon where the build was being run.
 
 In order to have it work for the Kubernetes cluster used by this workshop environment, we will need to push the image to an image registry the cluster can access.
 
@@ -6,6 +6,24 @@ The configuration we will use this time is `config-step-4-build-and-push/push.ym
 
 ```execute
 cat config-step-4-build-and-push/push.yml
+```
+
+The output should be:
+
+```
+#@ load("@ytt:data", "data")
+#@ load("@ytt:assert", "assert")
+
+#@ if/end data.values.push_images:
+---
+apiVersion: kbld.k14s.io/v1alpha1
+kind: ImageDestinations
+destinations:
+- image: quay.io/eduk8s-labs/sample-app-go
+  #@ if not data.values.push_images_repo or len(data.values.push_images_repo) == 0:
+  #@   assert.fail("Expected push_images_repo to be non-empty. Example: quay.io/eduk8s-labs/sample-app-go")
+  #@ end
+  newImage: #@ data.values.push_images_repo
 ```
 
 The configuration specifies that `quay.io/eduk8s-labs/sample-app-go` should be pushed to an image repository with name as specified by `push_images_repo` data value.

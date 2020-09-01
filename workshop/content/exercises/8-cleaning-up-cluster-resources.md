@@ -4,13 +4,7 @@ Given that `kapp` tracks all resources that were deployed to the Kubernetes clus
 kapp delete -a simple-app
 ```
 
-When prompted, confirm that you do indeed want to delete all the resources:
-
-```terminal:input
-text: y
-```
-
-When complete the output should be:
+The initial output should be:
 
 ```
 Changes
@@ -25,6 +19,12 @@ default    simple-app  Deployment  2 OK / 2    1d   del      -
 
 Continue? [yN]: y
 ...
+```
+
+When prompted, confirm that you do indeed want to delete all the resources:
+
+```terminal:input
+text: y
 ```
 
 To verify that the namespace is empty run:
