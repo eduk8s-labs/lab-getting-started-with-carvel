@@ -1,14 +1,18 @@
+# Deploying an application
+
 We will use a small [Go application](https://github.com/eduk8s-labs/sample-app-go) as our example to showcase how tools from Carvel can work together to aid in the process of developing and deploying an application.
 
-A pre-built container image for the application is published at `quay.io/eduk8s-labs/sample-app-go:latest`. We will use this initially, but in later steps we will use one of the Carvel tools to coordinate the building of the container image from source code.
+A pre-built container image for the application is published at [quay.io/eduk8s-labs/sample-app-go:latest](https://quay.io/repository/eduk8s-labs/sample-app-go?tag=latest&tab=tags). We will use this initially, but in later steps we will use one of the Carvel tools to coordinate the building of the container image from source code.
 
-The current directory contains multiple sub directories with variations of our application configuration that we will use during the workshop. To view the files run:
+The current directory contains multiple sub directories with variations of our application configuration that we will use during the workshop.
 
-```execute
+To view the files, run:
+
+```
 tree .
 ```
 
-The output should be:
+The output should be something like:
 
 ```
 .
@@ -35,17 +39,17 @@ The output should be:
 6 directories, 13 files
 ```
 
-When deploying the container image for an application to Kubernetes, you will typical use a Kubernetes deployment resource. In order to expose the application under a single IP address within the Kubernetes cluster, or via an external load balancer or ingress, you will also use a service resource.
+When deploying the container image for an application to Kubernetes, you will typically use a Kubernetes deployment resource. In order to expose the application under a single IP address within the Kubernetes cluster, or via an external load balancer or ingress, you will also use a service resource.
 
 In our first example, this is what the `config-step-1-minimal/config.yml` file contains.
 
-To view the contents of the file run:
+To view the contents of the file, run:
 
-```execute
+```
 cat config-step-1-minimal/config.yml
 ```
 
-As is the case with self contained resource configurations for Kubernetes, the name of the container image and an environment variable `HELLO_MSG` needed by the aplication are hard coded into the deployment resource.
+As is the case with self contained resource configurations for Kubernetes, the name of the container image and an environment variable `HELLO_MSG` needed by the application are hard coded into the deployment resource.
 
 If using `kubectl` to deploy the application to Kubernetes, you would use the command:
 
@@ -55,103 +59,145 @@ kubectl apply -f config-step-1-minimal/config.yml
 
 We will not be using `kubectl`, but to see what it would output if run, you can run it with the `--dry-run=client` option.
 
-```execute
-kubectl apply -f config-step-1-minimal/config.yml --dry-run=client
+```
+kubectl apply -f config-step-1-minimal/config.yml --dry-run=client -o yaml
 ```
 
 All that `kubectl` would output is the list of affected resources.
 
 ```
-deployment.apps/simple-app created (dry run)
-service/simple-app created (dry run)
+apiVersion: v1
+items:
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"simple-app","namespace":"default"},"spec":{"selector":{"matchLabels":{"simple-app":""}},"template":{"metadata":{"labels":{"simple-app":""}},"spec":{"containers":[{"env":[{"name":"HELLO_MSG","value":"stranger"}],"image":"quay.io/eduk8s-labs/sample-app-go@sha256:5021a23e0c4a4633bfd6c95b13898cffb88a0e67f109d87ec01b4f896f4b4296","name":"simple-app"}]}}}}
+    name: simple-app
+    namespace: default
+  spec:
+    selector:
+      matchLabels:
+        simple-app: ""
+    template:
+      metadata:
+        labels:
+          simple-app: ""
+      spec:
+        containers:
+        - env:
+          - name: HELLO_MSG
+            value: stranger
+          image: quay.io/eduk8s-labs/sample-app-go@sha256:5021a23e0c4a4633bfd6c95b13898cffb88a0e67f109d87ec01b4f896f4b4296
+          name: simple-app
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"name":"simple-app","namespace":"default"},"spec":{"ports":[{"port":8080,"targetPort":8080}],"selector":{"simple-app":""}}}
+    name: simple-app
+    namespace: default
+  spec:
+    ports:
+    - port: 8080
+      targetPort: 8080
+    selector:
+      simple-app: ""
+kind: List
+metadata: {}
 ```
 
-What `kubectl` does not do is tell you the specifics of the changes that are being made so you can confirm that is what you expected.
 
-Further, `kubectl` does not yet have a robust pruning capability to converge a set of resources ([GitHub issue](https://github.com/kubernetes/kubectl/issues/572)) when configuration is re-applied to an existing set of deployment resources.
+Rather unfortuantely `kubectl` does not yet have a robust pruning capability to converge a set of resources ([GitHub issue](https://github.com/kubernetes/kubectl/issues/572)) when configuration is re-applied to an existing set of deployment resources.
 
-The [kapp](https://get-kapp.io/) tool from Carvel addresses and improves on these and other limitations of `kubectl`, as it is designed around the concept of a Kubernetes application, that being, a set of related resources pertaining to an application, which share a common label.
+The [kapp](https://get-kapp.io/) tool from Carvel addresses and improves on this and other limitations of `kubectl`, as it is designed around the concept of a Kubernetes application, that being, a set of related resources pertaining to an application, which share a common label.
 
 Key principles around which `kapp` is designed are:
 
-* `kapp` separates change calculation phase (diff), from change apply phase (apply) to give users visibility and confidence regarding what's about to change in the cluster.
+* `kapp` separates the change calculation phase (diff) from the change apply phase (apply) to give users visibility and confidence regarding what's about to change in the cluster.
 * `kapp` tracks and converges resources based on a unique generated label, freeing its users from worrying about cleaning up old deleted resources as the application is updated.
 * `kapp` orders resources when being applied so that the Kubernetes API server can successfully process them when dependencies exist (e.g., CRDs and namespaces are created before other resources).
 * `kapp` tries to wait for resources to become ready before considering the deployment a success.
 
 To deploy our application with `kapp`, run:
 
-```execute
+```
 kapp deploy -a simple-app -f config-step-1-minimal/
 ```
+> The `-a` argument above is the name we wish to associate with the application (resources) we wish to deploy.
 
 You will be prompted to accept the changes before they are applied. Enter `y` when asked to continue.
-
-```terminal:input
-text: y
-```
 
 The output from `kapp` should be similar to the following:
 
 ```
 Changes
 
-Namespace                          Name        Kind        Conds.  Age  Op      Wait to    Rs  Ri
-{{session_namespace}}  simple-app  Deployment  -       -    create  reconcile  -   -
-^                                  simple-app  Service     -       -    create  reconcile  -   -
+Namespace  Name        Kind        Conds.  Age  Op      Op st.  Wait to    Rs  Ri
+default    simple-app  Deployment  -       -    create  -       reconcile  -   -
+^          simple-app  Service     -       -    create  -       reconcile  -   -
 
 Op:      2 create, 0 delete, 0 update, 0 noop
 Wait to: 2 reconcile, 0 delete, 0 noop
 
 Continue? [yN]: y
 
-11:17:38AM: ---- applying 2 changes [0/2 done] ----
-11:17:38AM: create service/simple-app (v1) namespace: {{session_namespace}}
-11:17:38AM: create deployment/simple-app (apps/v1) namespace: {{session_namespace}}
-11:17:38AM: ---- waiting on 2 changes [0/2 done] ----
-11:17:38AM: ok: reconcile service/simple-app (v1) namespace: {{session_namespace}}
-11:17:39AM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: {{session_namespace}}
-11:17:39AM:  ^ Waiting for 1 unavailable replicas
-11:17:39AM:  L ok: waiting on replicaset/simple-app-6b4488bc45 (apps/v1) namespace: {{session_namespace}}
-11:17:39AM:  L ongoing: waiting on pod/simple-app-6b4488bc45-5mmfr (v1) namespace: {{session_namespace}}
-11:17:39AM:     ^ Pending: ContainerCreating
-11:17:39AM: ---- waiting on 1 changes [1/2 done] ----
-11:17:41AM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: {{session_namespace}}
-11:17:41AM:  ^ Waiting for 1 unavailable replicas
-11:17:41AM:  L ok: waiting on replicaset/simple-app-6b4488bc45 (apps/v1) namespace: {{session_namespace}}
-11:17:41AM:  L ok: waiting on pod/simple-app-6b4488bc45-5mmfr (v1) namespace: {{session_namespace}}
-11:17:43AM: ok: reconcile deployment/simple-app (apps/v1) namespace: {{session_namespace}}
-11:17:43AM: ---- applying complete [2/2 done] ----
-11:17:43AM: ---- waiting complete [2/2 done] ----
+11:29:52PM: ---- applying 2 changes [0/2 done] ----
+11:29:52PM: create deployment/simple-app (apps/v1) namespace: default
+11:29:52PM: create service/simple-app (v1) namespace: default
+11:29:52PM: ---- waiting on 2 changes [0/2 done] ----
+11:29:52PM: ok: reconcile service/simple-app (v1) namespace: default
+11:29:52PM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: default
+11:29:52PM:  ^ Waiting for generation 2 to be observed
+11:29:52PM:  L ok: waiting on replicaset/simple-app-677b96597b (apps/v1) namespace: default
+11:29:52PM:  L ongoing: waiting on pod/simple-app-677b96597b-qhjjm (v1) namespace: default
+11:29:52PM:     ^ Pending
+11:29:52PM: ---- waiting on 1 changes [1/2 done] ----
+11:29:52PM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: default
+11:29:52PM:  ^ Waiting for 1 unavailable replicas
+11:29:52PM:  L ok: waiting on replicaset/simple-app-677b96597b (apps/v1) namespace: default
+11:29:52PM:  L ongoing: waiting on pod/simple-app-677b96597b-qhjjm (v1) namespace: default
+11:29:52PM:     ^ Pending: ContainerCreating
+11:29:55PM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: default
+11:29:55PM:  ^ Waiting for 1 unavailable replicas
+11:29:55PM:  L ok: waiting on replicaset/simple-app-677b96597b (apps/v1) namespace: default
+11:29:55PM:  L ok: waiting on pod/simple-app-677b96597b-qhjjm (v1) namespace: default
+11:29:56PM: ok: reconcile deployment/simple-app (apps/v1) namespace: default
+11:29:56PM: ---- applying complete [2/2 done] ----
+11:29:56PM: ---- waiting complete [2/2 done] ----
 
 Succeeded
 ```
 
 To list the applications that have been deployed to the current namespace, you can run:
 
-```execute-1
+```
 kapp ls
 ```
 
-This will list a single application called `simple-app`, corresponding to the name of the deployment for the application we specified using the `-a` option when `kapp` was originally run to deploy the application.
+This will list all applications deployed, among which is `simple-app`
 
 ```
-Apps in namespace '{{session_namespace}}'
+Apps in namespace 'default'
 
-Name        Namespaces                         Lcs   Lca
-simple-app  {{session_namespace}}  true  30s
+Name          Namespaces                             Lcs   Lca
+cert-manager  (cluster),cert-manager                 true  52m
+kc            (cluster),kapp-controller,kube-system  true  52m
+simple-app    default                                true  1m
 
 Lcs: Last Change Successful
 Lca: Last Change Age
 
-1 apps
+3 apps
 
 Succeeded
 ```
 
 To inspect all the Kubernetes resources created for the application called `sample-app`, run:
 
-```execute
+```
 kapp inspect -a simple-app --tree
 ```
 
@@ -160,17 +206,18 @@ The output should be similar to:
 ```
 Resources in app 'simple-app'
 
-Namespace                          Name                             Kind        Owner    Conds.  Rs  Ri  Age
-{{session_namespace}}  simple-app                       Service     kapp     -       ok  -   1m
-{{session_namespace}}   L simple-app                    Endpoints   cluster  -       ok  -   1m
-{{session_namespace}}  simple-app                       Deployment  kapp     2/2 t   ok  -   1m
-{{session_namespace}}   L simple-app-9b466965b          ReplicaSet  cluster  -       ok  -   1m
-{{session_namespace}}   L.. simple-app-9b466965b-jzpzs  Pod         cluster  4/4 t   ok  -   1m
+Namespace  Name                              Kind           Owner    Conds.  Rs  Ri  Age
+default    simple-app                        Deployment     kapp     2/2 t   ok  -   5m
+default     L simple-app-677b96597b          ReplicaSet     cluster  -       ok  -   5m
+default     L.. simple-app-677b96597b-qhjjm  Pod            cluster  4/4 t   ok  -   5m
+default    simple-app                        Service        kapp     -       ok  -   5m
+default     L simple-app                     Endpoints      cluster  -       ok  -   5m
+default     L simple-app-drqd7               EndpointSlice  cluster  -       ok  -   5m
 
 Rs: Reconcile state
 Ri: Reconcile information
 
-5 resources
+6 resources
 
 Succeeded
 ```
@@ -179,33 +226,46 @@ As you can see, `kapp` will also list resources it did not directly create (such
 
 You can also get the logs for the application:
 
-```execute
-kapp logs -f -a simple-app
+```
+kapp logs -a simple-app
 ```
 
 For our simple Go application you should see log output similar to:
 
 ```
-# starting tailing 'simple-app-6f884d8d9d-nn5ds > simple-app' logs
-simple-app-6f884d8d9d-nn5ds > simple-app | 2019/05/09 20:43:36 Server started
+# starting tailing 'simple-app-677b96597b-qhjjm > simple-app' logs
+simple-app-677b96597b-qhjjm > simple-app | 2021/08/18 23:29:55 Server started
+# ending tailing 'simple-app-677b96597b-qhjjm > simple-app' logs
+
+Succeeded
 ```
 
 The `inspect` and `logs` commands make it convenient to view resources related to an application by using only the name of the application.
 
-For example, the `logs` command in this case (since we use `-f`) will tail any existing or new pod that is part of `simple-app` application, even after we make changes and redeploy, without needing to identify the names of the individual pods.
+We could have added a `-f` before the application to tail any existing or new pod that is part of `simple-app` application, even after we make changes and redeploy, without needing to identify the names of the individual pods.
 
-Although not a configuration change, to illustrate this, kill the currently running pod using:
+To illustrate this, kill the currently running pod using:
 
-```execute-2
+```
 kubectl delete pods -l simple-app
 ```
 
-You will see logging from the original pod stopping, and the logging from the replacement pod then starting.
+then type
+
+```
+kapp logs -a simple-app
+```
+
+Note the new replacement pod name
+
+```
+# starting tailing 'simple-app-677b96597b-d8vfz > simple-app' logs
+simple-app-677b96597b-d8vfz > simple-app | 2021/08/18 23:41:50 Server started
+# ending tailing 'simple-app-677b96597b-d8vfz > simple-app' logs
+
+Succeeded
+```
+
+If you had another terminal window opened and had used `kapp logs -a -f simple-app`, you would have seen logging from the original pod stopping, and the logging from the replacement pod starting.
 
 If you were using `kubectl logs -f deployment/simple-app`, killing of the pod would have caused `kubectl logs` to exit.
-
-Before we continue, interrupt the tailing of the logs.
-
-```terminal:interrupt
-session: 1
-```

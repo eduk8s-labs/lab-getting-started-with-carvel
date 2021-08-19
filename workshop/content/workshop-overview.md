@@ -1,3 +1,5 @@
+# Overview
+
 [Carvel](https://carvel.dev/) contains several tools created out of the experience of having to work with complex, multi-purpose tools like [Helm](https://helm.sh/). Working with simple, single-purpose tools, that easily interoperate with one another can result in a better workflow compared to the all-in-one approach chosen by Helm. Using this approach can be easier to understand and debug.
 
 In this workshop we will focus on the local application development workflow; however, the tools from Carvel introduced here can also work well for other workflows, for example, for production GitOps deployments or manual application deployments.
@@ -14,6 +16,14 @@ Helm arguably tries to address stages 2, 3, and 4, with configuration, packaging
 
 For each stage, Carvel provides a tool that aims to address that stage's challenges:
 
-* __configuration__ -> [ytt](https://get-ytt.io/) for YAML configuration and templating
-* __packaging__ -> [kbld](https://get-kbld.io/) for building container images and recording image references
-* __deployment__ -> [kapp](https://get-kapp.io/) for deploying a set of Kubernetes resources
+* __sourcing__ -> [vendir](https://carvel.dev/vendir/) syncs any number of data sources (e.g., Git repositories) into a consistent structure consuming a YAML definition
+* __configuration__ -> [ytt](https://carvel.dev/ytt/) for YAML configuration and templating
+* __packaging__ -> [kbld](https://carvel.dev/kbld/) for building container images and recording image references and [imgpkg](https://carvel.dev/imgpkg/) to package, distribute, and relocate Kubernetes configuration and dependent OCI images as one OCI artifact
+* __deployment__ -> [kapp](https://carvel.dev/kapp/) for deploying a set of Kubernetes resources
+
+Bringing all the above together and thinking about how authorship and consumption of sets of versioned Kubernetes resources we will take a look at [kapp-controller](https://carvel.dev/kapp/) where:
+
+ * Package authors may encapsulate, version, and distribute software for others to install on a Kubernetes cluster
+ * Package consumers may discover, configure, and install versioned software on a Kubernetes cluster without needing to know all the underlying details
+
+The kapp-controller will continuously fetch, template, and deploy an installed package just like an application.

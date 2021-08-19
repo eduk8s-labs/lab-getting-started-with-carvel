@@ -1,8 +1,9 @@
+.bash_history
 .cache
 .config
 .docker
-.bash_history
 .gitconfig
+.history
 .kube
 .lesshst
 .local

@@ -1,3 +1,5 @@
+# Patching application configuration
+
 In addition to templating, `ytt` offers another way to customize application configuration.
 
 Instead of relying on the provider of an application using templating to expose a set of configuration knobs, configuration consumers can use the [ytt overlay](https://github.com/k14s/ytt/blob/master/docs/lang-ref-ytt-overlay.md) feature to apply arbitrary patches to existing YAML configuration resources.
@@ -10,7 +12,7 @@ An example configuration for `ytt` which does this can be found in the `config-s
 
 To view the full file run:
 
-```execute
+```
 cat config-step-2a-overlays/custom-scale.yml
 ```
 
@@ -28,54 +30,64 @@ This says that for any `Deployment` resource, patch `spec.replicas` so the resul
 
 To update the application deployment using this configuration run:
 
-```execute
+```
 ytt template -f config-step-2-template/ -f config-step-2a-overlays/custom-scale.yml -v hello_msg="carvel user" | kapp deploy -a simple-app -f- --diff-changes --yes
 ```
 
 The output should be similar to:
 
 ```
-@@ update deployment/simple-app (apps/v1) namespace: {{session_namespace}} @@
+@@ update deployment/simple-app (apps/v1) namespace: default @@
   ...
- 15, 15   spec:
-     16 +   replicas: 2
- 16, 17     selector:
- 17, 18       matchLabels:
+103,103   spec:
+    104 +   replicas: 2
+104,105     selector:
+105,106       matchLabels:
 
 Changes
 
-Namespace                          Name        Kind        Conds.  Age  Op      Wait to    Rs  Ri
-{{session_namespace}}  simple-app  Deployment  2/2 t   9m   update  reconcile  ok  -
+Namespace  Name        Kind        Conds.  Age  Op      Op st.  Wait to    Rs  Ri
+default    simple-app  Deployment  2/2 t   1h   update  -       reconcile  ok  -
 
 Op:      0 create, 0 delete, 1 update, 0 noop
 Wait to: 1 reconcile, 0 delete, 0 noop
 
-7:12:41PM: ---- applying 1 changes [0/1 done] ----
-7:12:41PM: update deployment/simple-app (apps/v1) namespace: {{session_namespace}}
-7:12:41PM: ---- waiting on 1 changes [0/1 done] ----
-7:12:43PM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: {{session_namespace}}
-7:12:43PM:  ^ Waiting for generation 6 to be observed
-7:12:43PM:  L ok: waiting on replicaset/simple-app-df7bbcb86 (apps/v1) namespace: {{session_namespace}}
-7:12:43PM:  L ok: waiting on replicaset/simple-app-7d5ddf7d5b (apps/v1) namespace: {{session_namespace}}
-7:12:43PM:  L ok: waiting on pod/simple-app-7d5ddf7d5b-rp78f (v1) namespace: {{session_namespace}}
-7:12:43PM:  L ongoing: waiting on pod/simple-app-7d5ddf7d5b-rlsck (v1) namespace: {{session_namespace}}
-7:12:43PM:     ^ Pending: ContainerCreating
-7:12:45PM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: {{session_namespace}}
-7:12:45PM:  ^ Waiting for 1 unavailable replicas
-7:12:45PM:  L ok: waiting on replicaset/simple-app-df7bbcb86 (apps/v1) namespace: {{session_namespace}}
-7:12:45PM:  L ok: waiting on replicaset/simple-app-7d5ddf7d5b (apps/v1) namespace: {{session_namespace}}
-7:12:45PM:  L ok: waiting on pod/simple-app-7d5ddf7d5b-rp78f (v1) namespace: {{session_namespace}}
-7:12:45PM:  L ongoing: waiting on pod/simple-app-7d5ddf7d5b-rlsck (v1) namespace: {{session_namespace}}
-7:12:45PM:     ^ Pending: ContainerCreating
-7:12:47PM: ok: reconcile deployment/simple-app (apps/v1) namespace: {{session_namespace}}
-7:12:47PM: ---- applying complete [1/1 done] ----
-7:12:47PM: ---- waiting complete [1/1 done] ----
+12:46:53AM: ---- applying 1 changes [0/1 done] ----
+12:46:53AM: update deployment/simple-app (apps/v1) namespace: default
+12:46:53AM: ---- waiting on 1 changes [0/1 done] ----
+12:46:53AM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: default
+12:46:53AM:  ^ Waiting for generation 8 to be observed
+12:46:53AM:  L ok: waiting on replicaset/simple-app-688bf88d9b (apps/v1) namespace: default
+12:46:53AM:  L ok: waiting on replicaset/simple-app-677b96597b (apps/v1) namespace: default
+12:46:53AM:  L ok: waiting on replicaset/simple-app-57d74b4774 (apps/v1) namespace: default
+12:46:53AM:  L ok: waiting on pod/simple-app-688bf88d9b-nsjxw (v1) namespace: default
+12:46:53AM:  L ongoing: waiting on pod/simple-app-688bf88d9b-nlfnr (v1) namespace: default
+12:46:53AM:     ^ Pending: ContainerCreating
+12:46:54AM: ongoing: reconcile deployment/simple-app (apps/v1) namespace: default
+12:46:54AM:  ^ Waiting for 1 unavailable replicas
+12:46:54AM:  L ok: waiting on replicaset/simple-app-688bf88d9b (apps/v1) namespace: default
+12:46:54AM:  L ok: waiting on replicaset/simple-app-677b96597b (apps/v1) namespace: default
+12:46:54AM:  L ok: waiting on replicaset/simple-app-57d74b4774 (apps/v1) namespace: default
+12:46:54AM:  L ok: waiting on pod/simple-app-688bf88d9b-nsjxw (v1) namespace: default
+12:46:54AM:  L ongoing: waiting on pod/simple-app-688bf88d9b-nlfnr (v1) namespace: default
+12:46:54AM:     ^ Pending: ContainerCreating
+12:46:55AM: ok: reconcile deployment/simple-app (apps/v1) namespace: default
+12:46:55AM: ---- applying complete [1/1 done] ----
+12:46:55AM: ---- waiting complete [1/1 done] ----
 
 Succeeded
 ```
 
 To verify that we now have 2 instances of our application, run:
 
-```execute-2
-kubectl get pods
+```
+kubectl get pods -l simple-app
+```
+
+which should yield
+
+```
+NAME                          READY   STATUS    RESTARTS   AGE
+simple-app-688bf88d9b-nlfnr   1/1     Running   0          6h54m
+simple-app-688bf88d9b-nsjxw   1/1     Running   0          6h57m
 ```
