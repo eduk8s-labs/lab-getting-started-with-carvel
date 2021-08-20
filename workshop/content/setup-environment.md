@@ -7,7 +7,7 @@ Let's invoke a startup script to bootstrap the cluster and install Harbor.
 ```
 ./startup.sh
 ```
-> Plesae be patient.  This will take anywhere from 3-5 minutes to complete.
+> Please be patient.  This will take anywhere from 3-5 minutes to complete.
 
 Let's verify that the cluster node and pods are up and running
 ```
