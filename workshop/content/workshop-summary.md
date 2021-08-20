@@ -1,6 +1,6 @@
 # Summary
 
-We've seen how [ytt](https://get-ytt.io/), [kbld](https://get-kbld.io/) and [kapp](https://get-kapp.io/) can be used together (`ytt ... | kbld -f- | kapp deploy ...`) to deploy and iterate on an application running on Kubernetes. Each one of these tools has been designed to be single-purpose and composable with other tools from Carvel and the larger Kubernetes ecosystem.
+We've seen how [ytt](https://carvel.dev/ytt/), [kbld](https://carvel.dev/kbld/) and [kapp](https://carvel.dev/kapp/) can be used together (`ytt ... | kbld -f- | kapp deploy ...`) to deploy and iterate on an application running on Kubernetes. Each one of these tools has been designed to be single-purpose and composable with other tools from Carvel and the larger Kubernetes ecosystem.
 
 The Carvel development team is eager to hear your thoughts and feedback in [#carvel in Kubernetes slack](https://slack.kubernetes.io/) and/or via Github issues and PRs ([https://github.com/vmware-tanzu/carvel](https://github.com/vmware-tanzu/carvel)) for each project. Don't hesitate to reach out!
 
