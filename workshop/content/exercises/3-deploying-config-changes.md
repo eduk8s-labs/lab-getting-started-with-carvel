@@ -11,7 +11,7 @@ sed -ibak -e "s/stranger/somebody/" config-step-1-minimal/config.yml
 Now re-run `kapp`, but this time add the `--diff-changes` option to tell it to show us what changes have been made.
 
 ```
-kapp deploy -a simple-app -f config-step-1-miiff-changes --yes
+kapp deploy -a simple-app -f config-step-1-minimal/config.yml --diff-changes
 ```
 
 You should see similar output to the following:
