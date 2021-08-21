@@ -7,7 +7,7 @@ Please type
 ```
 screen
 ```
-> Press the [space] bar twice.  You will be brought back to the current terminal session prompt.
+> Press the [space] bar.  You will be brought back to the current terminal session prompt.
 
 
 As with this deployment we have only created a service to expose the deployment internally to the cluster, and have not exposed it using an external load balancer or ingress, in order to access it from your local computer, you would need to set up port forwarding. This can be done using the `kubectl` command by running:
