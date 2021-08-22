@@ -2,7 +2,7 @@
 
 Managing application configuration is a hard problem. As an application matures, typically configuration needs to be tweaked for different environments, and different constraints. This leads to the desire to expose several, hopefully not too many, configuration knobs that could be tweaked at the time of the deployment.
 
-This problem is typically solved in two ways: templating or patching. Tools which exist to solve this problem are `helm` and `kustomize`. The Carvel project also has its own tool called [ytt](https://get-ytt.io/), which supports both approaches.
+This problem is typically solved in two ways: templating or patching. Tools which exist to solve this problem are `helm` and `kustomize`. The Carvel project also has its own tool called [ytt](https://carvel.dev/ytt/), which supports both approaches.
 
 In this section we will see how `ytt` allows you to templatize YAML configuration, and in the next section, we'll see how it can patch YAML configuration via overlays.
 
