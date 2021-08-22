@@ -112,7 +112,7 @@ metadata: {}
 
 Rather unfortunately `kubectl` does not yet have a robust pruning capability to converge a set of resources ([GitHub issue](https://github.com/kubernetes/kubectl/issues/572)) when configuration is re-applied to an existing set of deployment resources.
 
-The [kapp](https://get-kapp.io/) tool from Carvel addresses and improves on this and other limitations of `kubectl`, as it is designed around the concept of a Kubernetes application, that being, a set of related resources pertaining to an application, which share a common label.
+The [kapp](https://carvel.dev/kapp/) tool from Carvel addresses and improves on this and other limitations of `kubectl`, as it is designed around the concept of a Kubernetes application, that being, a set of related resources pertaining to an application, which share a common label.
 
 Key principles around which `kapp` is designed are:
 
