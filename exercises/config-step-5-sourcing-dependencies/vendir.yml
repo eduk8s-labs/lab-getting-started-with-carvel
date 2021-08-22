@@ -1,0 +1,15 @@
+apiVersion: vendir.k14s.io/v1alpha1
+kind: Config
+directories:
+- path: vendor
+  contents:
+  - path: .
+    git:
+      url: https://github.com/vmware-tanzu/carvel-vendir
+      ref: origin/develop
+    includePaths:
+    - examples/git/vendir.yml
+    - examples/http/vendir.yml
+    - examples/github-release/vendir.yml
+    - examples/helm-chart/vendir.yml
+    - examples/image/vendir.yml

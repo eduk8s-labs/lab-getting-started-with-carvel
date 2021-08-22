@@ -1,0 +1,11 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - git:
+      commitTitle: generate protobuf proto for versions package
+      sha: 43142f6b60cdad944d54b80afb4903e11325aaaf
+      tags:
+      - v0.22.0-4-g43142f6
+    path: .
+  path: vendor
+kind: LockConfig
